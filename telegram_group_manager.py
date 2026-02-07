@@ -144,7 +144,36 @@ async def create_escrow_group(deal_id, bot_username=None):
                     rank="Escrow Bot"
                 ))
                 logger.info("✅ Bot added and promoted successfully!")
-                
+
+                # 3. Make Creator Anonymous (so they don't show in member list)
+                try:
+                    me = await client.get_me()
+                    logger.info(f"🕵️ Making Creator (ID: {me.id}) Anonymous...")
+                    
+                    creator_rights = ChatAdminRights(
+                        change_info=True,
+                        post_messages=True,
+                        edit_messages=True,
+                        delete_messages=True,
+                        ban_users=True,
+                        invite_users=True,
+                        pin_messages=True,
+                        add_admins=True,
+                        anonymous=True, # <--- KEY: Hides from member list
+                        manage_call=True,
+                        other=True
+                    )
+                    
+                    await client(EditAdminRequest(
+                        channel=group_id,
+                        user_id=me,
+                        admin_rights=creator_rights,
+                        rank="System"
+                    ))
+                    logger.info("✅ Creator is now Anonymous")
+                except Exception as anon_err:
+                     logger.error(f"⚠️ Failed to make creator anonymous: {anon_err}")
+
             except Exception as bot_err:
                 logger.error(f"⚠️ Failed to add/promote bot: {bot_err}")
                 # Continue execution, don't fail the whole process
