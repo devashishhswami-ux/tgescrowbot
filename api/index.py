@@ -11,59 +11,55 @@ from flask import Flask, request, render_template, redirect, url_for, session, f
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
-# Import database with error handling
+# Robust Database Import
+DB_AVAILABLE = False
 try:
-    import database
-    DB_AVAILABLE = True
+    # 1. Try to load explicitly from parent directory to guarantee correct file
+    import importlib.util
+    db_path = os.path.join(parent_dir, 'database.py')
+    if os.path.exists(db_path):
+        spec = importlib.util.spec_from_file_location("database", db_path)
+        if spec and spec.loader:
+            database = importlib.util.module_from_spec(spec)
+            sys.modules["database"] = database
+            spec.loader.exec_module(database)
+            DB_AVAILABLE = True
+            print(f"✅ Loaded database explicitly from {db_path}")
+    
+    # 2. Fallback to standard import if explicit load skipped/failed but no exception
+    if not DB_AVAILABLE:
+        import database
+        DB_AVAILABLE = True
+        print("✅ Loaded database via standard import")
+
 except Exception as e:
-    print(f"Database import error: {e}")
+    print(f"❌ Database import error: {e}")
     DB_AVAILABLE = False
+    
+    # Mock Database Class for fallback
     class database:
         @staticmethod
-        def get_statistics():
-            return {'total_deals': 0, 'disputes_resolved': 0}
+        def get_statistics(): return {'total_deals': 0, 'disputes_resolved': 0}
         @staticmethod
-        def get_all_bot_users():
-            return []
+        def get_all_bot_users(): return []
         @staticmethod
-        def get_config(key):
-            return None
+        def get_config(key): return None
         @staticmethod
-        def update_config(key, value):
-            return False
+        def update_config(key, value): return False
         @staticmethod
-        def get_all_editable_content():
-            return []
+        def get_all_editable_content(): return []
         @staticmethod
-        def update_editable_content(key, content):
-            return False
+        def update_editable_content(key, content): return False
         @staticmethod
-        def get_crypto_addresses():
-            return []
+        def get_crypto_addresses(): return []
         @staticmethod
-        def add_crypto_address(currency, address, network='', label=''):
-            return False
+        def add_crypto_address(currency, address, network='', label=''): return False
         @staticmethod
-        def delete_crypto_address(address_id):
-            return False
+        def delete_crypto_address(address_id): return False
         @staticmethod
-        def update_crypto_address(address_id, currency, address, network='', label=''):
-            return False
-
-# MONKEY PATCH: Ensure update_config exists regardless of which database.py is loaded
-if DB_AVAILABLE and not hasattr(database, 'update_config'):
-    print("⚠️ Monkey-patching database.update_config")
-    def _update_config(key, value):
-        try:
-            if hasattr(database, 'set_config'):
-                return database.set_config(key, value)
-            if hasattr(database, 'supabase') and database.supabase:
-                database.supabase.table('config').upsert({'key': key, 'value': value}).execute()
-                return True
-        except Exception as e:
-            print(f"Error in monkey-patched update_config: {e}")
-        return False
-    database.update_config = _update_config
+        def update_crypto_address(address_id, currency, address, network='', label=''): return False
+        @staticmethod
+        def get_telegram_admin_session(): return None
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "escrow_bot_secret_key_change_this_in_production")
