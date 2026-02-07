@@ -73,12 +73,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     # Private chat welcome
+    user_id = update.effective_user.id
+    
     keyboard = [
         [InlineKeyboardButton(messages.BTN_WHAT_IS_ESCROW, callback_data='what_is_escrow')],
         [InlineKeyboardButton(messages.BTN_INSTRUCTIONS, callback_data='instructions')],
         [InlineKeyboardButton(messages.BTN_TERMS, callback_data='terms')],
         [InlineKeyboardButton(messages.BTN_CREATE_GROUP, callback_data='create_group')]
     ]
+    
+    # Add Admin Panel button for admin only (Telegram Web App)
+    from config import ADMIN_USER_ID, ADMIN_PANEL_URL
+    if ADMIN_USER_ID > 0 and user_id == ADMIN_USER_ID:
+        keyboard.insert(0, [InlineKeyboardButton(
+            "🛡️ Admin Panel", 
+            web_app={'url': ADMIN_PANEL_URL}
+        )])
+    
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     if os.path.exists("video.mp4"):

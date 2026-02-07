@@ -275,6 +275,70 @@ def crypto_addresses():
     addresses = database.get_crypto_addresses()
     return render_template('crypto_addresses.html', addresses=addresses)
 
+@app.route('/webhook-manager', methods=['GET', 'POST'])
+@login_required
+def webhook_manager():
+    \"\"\"Manage bot webhook - fix webhook issues\"\"\"
+    import requests
+    from dotenv import load_dotenv
+    
+    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+    bot_token = os.getenv('BOT_TOKEN')
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'delete':
+            # Delete webhook
+            try:
+                response = requests.post(f'https://api.telegram.org/bot{bot_token}/deleteWebhook')
+                if response.json().get('ok'):
+                    flash('Webhook deleted successfully!', 'success')
+                else:
+                    flash(f'Error: {response.json().get(\"description\")}', 'danger')
+            except Exception as e:
+                flash(f'Error deleting webhook: {e}', 'danger')
+        
+        elif action == 'set':
+            # Set new webhook
+            webhook_url = request.form.get('webhook_url')
+            if webhook_url:
+                try:
+                    response = requests.post(
+                        f'https://api.telegram.org/bot{bot_token}/setWebhook',
+                        json={'url': webhook_url}
+                    )
+                    if response.json().get('ok'):
+                        flash(f'Webhook set to: {webhook_url}', 'success')
+                    else:
+                        flash(f'Error: {response.json().get(\"description\")}', 'danger')
+                except Exception as e:
+                    flash(f'Error setting webhook: {e}', 'danger')
+        
+        elif action == 'fix':
+            # Fix webhook: Delete old and set to polling mode
+            try:
+                response = requests.post(f'https://api.telegram.org/bot{bot_token}/deleteWebhook')
+                if response.json().get('ok'):
+                    flash('Webhook deleted! Bot is now in polling mode. Please restart bot.', 'success')
+                else:
+                    flash(f'Error: {response.json().get(\"description\")}', 'danger')
+            except Exception as e:
+                flash(f'Error fixing webhook: {e}', 'danger')
+        
+        return redirect(url_for('webhook_manager'))
+    
+    # Get current webhook info
+    webhook_info = {}
+    try:
+        response = requests.get(f'https://api.telegram.org/bot{bot_token}/getWebhookInfo')
+        if response.json().get('ok'):
+            webhook_info = response.json().get('result', {})
+    except Exception as e:
+        flash(f'Error getting webhook info: {e}', 'warning')
+    
+    return render_template('webhook_manager.html', webhook_info=webhook_info)
+
 if __name__ == '__main__':
     print("=" * 50)
     print("🚀 Admin Panel Starting...")
