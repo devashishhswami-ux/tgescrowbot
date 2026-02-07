@@ -107,6 +107,48 @@ async def create_escrow_group(deal_id, bot_username=None):
         group_id = group.id
         
         logger.info(f"✅ Group created! ID: {group_id}")
+
+        # ------------------------------------------------------------------
+        # ADD BOT AND PROMOTE TO ADMIN
+        # ------------------------------------------------------------------
+        if bot_username:
+            try:
+                # 1. Invite Bot
+                from telethon.tl.functions.channels import InviteToChannelRequest, EditAdminRequest
+                from telethon.tl.types import ChatAdminRights
+                
+                logger.info(f"🤖 Adding bot @{bot_username} to group...")
+                await client(InviteToChannelRequest(group_id, [bot_username]))
+                
+                # 2. Promote Bot to Admin
+                # Give full rights (delete msgs, pin, invite, etc)
+                rights = ChatAdminRights(
+                    change_info=True,
+                    post_messages=True,
+                    edit_messages=True,
+                    delete_messages=True,
+                    ban_users=True,
+                    invite_users=True,
+                    pin_messages=True,
+                    add_admins=False,
+                    anonymous=False,
+                    manage_call=False,
+                    other=True
+                )
+                
+                logger.info(f"👑 Promoting bot @{bot_username} to Admin...")
+                await client(EditAdminRequest(
+                    channel=group_id,
+                    user_id=bot_username,
+                    admin_rights=rights,
+                    rank="Escrow Bot"
+                ))
+                logger.info("✅ Bot added and promoted successfully!")
+                
+            except Exception as bot_err:
+                logger.error(f"⚠️ Failed to add/promote bot: {bot_err}")
+                # Continue execution, don't fail the whole process
+        # ------------------------------------------------------------------
         
         # Get invite link
         try:

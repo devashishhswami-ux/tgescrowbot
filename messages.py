@@ -1,9 +1,9 @@
 # messages.py
 
 WELCOME_TEXT = (
-    "⚜️ Middle Crypto Bot ⚜️ v.1\n"
+    "⚜️ Stealth Escrow Bot ⚜️ v.1\n"
     "Your Automated Telegram Escrow Service\n\n"
-    "Welcome to Middle Crypto Bot! This bot provides a secure escrow "
+    "Welcome to Stealth Escrow Bot! This bot provides a secure escrow "
     "service for your transactions on Telegram. 🔒 No more worries "
     "about getting scammed—your funds stay safe during all your deals. "
     "If you run into any issues, just type /contact, and an arbitrator "
@@ -26,9 +26,9 @@ WELCOME_TEXT = (
 
 # Group welcome message (Screenshot 2)
 GROUP_WELCOME_TEXT = (
-    "⚜️ <b>Middle Crypto Bot</b> ⚜️ v.1\n"
+    "⚜️ <b>Stealth Escrow Bot</b> ⚜️ v.1\n"
     "<i>Your Automated Telegram Escrow Service</i>\n\n"
-    "Welcome to <b>Middle Crypto Bot</b>! This bot provides a secure escrow "
+    "Welcome to <b>Stealth Escrow Bot</b>! This bot provides a secure escrow "
     "service for your transactions on Telegram. 🔒 No more worries "
     "about getting scammed—your funds stay safe during all your deals. "
     "If you run into any issues, just type /contact, and an arbitrator "
@@ -49,7 +49,7 @@ GROUP_WELCOME_TEXT = (
 
 # Admin join announcement (Screenshot 3)
 ADMIN_JOIN_MESSAGE = (
-    "In <b>Middle Crypto groups</b>, our admin @MiddleCryptoSupport "
+    "In <b>Stealth Escrow groups</b>, our admins @Saviour and @BENDYMAN "
     "can join at any time to ensure everything runs smoothly and "
     "securely. While our escrow process is fully automated through the "
     "bot, we also have active manual monitoring to keep transactions "

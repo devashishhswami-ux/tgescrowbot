@@ -478,7 +478,28 @@ async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYP
     if new_members and new_members.user:
         user_id = new_members.user.id
         
-        # Check if user is an admin
+        # 1. Check if BOT joined (Auto Welcome)
+        if user_id == context.bot.id:
+            logger.info("🤖 Bot joined a new group! Sending welcome message...")
+            try:
+                stats = database.get_statistics()
+                welcome_text = messages.GROUP_WELCOME_TEXT.format(
+                    total_deals=stats.get('total_deals', 5542),
+                    disputes_resolved=stats.get('disputes_resolved', 158)
+                )
+                keyboard = get_group_keyboard()
+                
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=welcome_text,
+                    reply_markup=keyboard,
+                    parse_mode='HTML'
+                )
+            except Exception as e:
+                logger.error(f"Error sending auto-welcome: {e}")
+            return
+
+        # 2. Check if ADMIN joined
         if user_id in ADMIN_USER_IDS:
             # Send admin join announcement
             await context.bot.send_message(
