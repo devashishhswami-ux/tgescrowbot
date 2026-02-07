@@ -1,18 +1,30 @@
 import os
-from supabase import create_client, Client
 from datetime import datetime
 
 # Supabase configuration
-SUPABASE_URL = os.getenv("SUPABASE_URL", "YOUR_SUPABASE_URL_HERE")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "YOUR_SUPABASE_KEY_HERE")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 # Initialize Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+try:
+    from supabase import create_client, Client
+    if SUPABASE_URL and SUPABASE_KEY and SUPABASE_URL != "YOUR_SUPABASE_URL_HERE":
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    else:
+        print("⚠️ WARNING: Supabase credentials not configured. Using mock database.")
+        supabase = None
+except Exception as e:
+    print(f"❌ Error initializing Supabase: {e}")
+    supabase = None
 
 def init_db():
     """Initialize database tables in Supabase"""
     # Tables are created via Supabase dashboard or SQL editor
     # This function can be used to insert default data
+    if not supabase:
+        print("⚠️ Database not initialized - Supabase client is None")
+        return
+    
     try:
         # Check if config exists, if not insert defaults
         result = supabase.table('config').select('*').eq('key', 'admin_username').execute()
