@@ -33,7 +33,11 @@ def login_required(f):
 def login():
     if request.method == 'POST':
         password = request.form.get('password')
-        admin_password = database.get_config('admin_password') or 'admin123'
+        
+        # Check environment variable first, then fall back to database
+        admin_password = os.getenv('ADMIN_PANEL_PASSWORD')
+        if not admin_password:
+            admin_password = database.get_config('admin_password') or 'admin123'
         
         if password == admin_password:
             session['logged_in'] = True

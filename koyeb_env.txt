@@ -1,0 +1,55 @@
+# ========================================
+# KOYEB ENVIRONMENT VARIABLES (For Bot)
+# ========================================
+
+BOT_TOKEN=8470449689:AAEHH4KZJi2TCqcWOxpVO0MtHDcTukaEN0k
+SUPABASE_URL=https://odcytmpqzikvysukmqwr.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kY3l0bXBxemlrdnlzdWttcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzODYzMzQsImV4cCI6MjA4NTk2MjMzNH0.twm0Q5vkCsMnjIYQjXa83tqfx2EACdIp4_i-NxUcZ0s
+
+# Optional (for admin panel Web App button in bot)
+ADMIN_USER_ID=your_telegram_user_id_here
+ADMIN_PANEL_URL=https://your-admin-panel.vercel.app
+
+
+# ========================================
+# VERCEL ENVIRONMENT VARIABLES (For Admin Panel)
+# ========================================
+
+SUPABASE_URL=https://odcytmpqzikvysukmqwr.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kY3l0bXBxemlrdnlzdWttcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzODYzMzQsImV4cCI6MjA4NTk2MjMzNH0.twm0Q5vkCsMnjIYQjXa83tqfx2EACdIp4_i-NxUcZ0s
+SECRET_KEY=your_random_secret_key_here_change_this
+ADMIN_PANEL_PASSWORD=your_secure_password_here
+
+
+# ========================================
+# QUICK SUMMARY:
+# ========================================
+#
+# KOYEB (Bot) - 3 Required + 2 Optional:
+# ✅ BOT_TOKEN
+# ✅ SUPABASE_URL
+# ✅ SUPABASE_KEY
+# - ADMIN_USER_ID (optional)
+# - ADMIN_PANEL_URL (optional)
+#
+# VERCEL (Admin Panel) - 3 Required:
+# ✅ SUPABASE_URL
+# ✅ SUPABASE_KEY
+# ✅ SECRET_KEY
+# ✅ ADMIN_PANEL_PASSWORD
+#
+# ========================================
+# HOW TO SET ADMIN_PANEL_PASSWORD:
+# ========================================
+# 
+# Option 1: Environment Variable (Recommended)
+# - Set ADMIN_PANEL_PASSWORD in Vercel
+# - Easy to change
+# - More secure
+#
+# Option 2: Supabase Database
+# - If ADMIN_PANEL_PASSWORD is not set
+# - Falls back to 'admin_password' in config table
+# - Default: admin123
+#
+# ========================================
