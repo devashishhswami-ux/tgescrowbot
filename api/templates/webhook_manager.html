@@ -9,40 +9,42 @@
     <h2>Current Webhook Status</h2>
 
     {% if webhook_info %}
-    <table>
-        <thead>
-            <tr>
-                <th>Property</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>URL</strong></td>
-                <td>
-                    {% if webhook_info.url %}
-                    <code>{{ webhook_info.url }}</code>
-                    {% else %}
-                    <span style="color: #64748b;">Not set (polling mode)</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td><strong>Has Custom Certificate</strong></td>
-                <td>{{ '✅ Yes' if webhook_info.has_custom_certificate else '❌ No' }}</td>
-            </tr>
-            <tr>
-                <td><strong>Pending Updates</strong></td>
-                <td><strong>{{ webhook_info.pending_update_count or 0 }}</strong></td>
-            </tr>
-            {% if webhook_info.last_error_date %}
-            <tr>
-                <td><strong>Last Error</strong></td>
-                <td style="color: var(--danger);">{{ webhook_info.last_error_message }}</td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table style="white-space: nowrap;">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>URL</strong></td>
+                    <td>
+                        {% if webhook_info.url %}
+                        <code>{{ webhook_info.url }}</code>
+                        {% else %}
+                        <span style="color: #64748b;">Not set (polling mode)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Has Custom Certificate</strong></td>
+                    <td>{{ '✅ Yes' if webhook_info.has_custom_certificate else '❌ No' }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Pending Updates</strong></td>
+                    <td><strong>{{ webhook_info.pending_update_count or 0 }}</strong></td>
+                </tr>
+                {% if webhook_info.last_error_date %}
+                <tr>
+                    <td><strong>Last Error</strong></td>
+                    <td style="color: var(--danger);">{{ webhook_info.last_error_message }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <p style="color: #64748b;">No webhook information available</p>
     {% endif %}
