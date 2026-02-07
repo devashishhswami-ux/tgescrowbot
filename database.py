@@ -101,13 +101,20 @@ def create_deal(deal_id, buyer_id, seller_id, group_id):
         print(f"Error creating deal: {e}")
 
 @safe_call
-def update_deal_address(deal_id, role, address):
-    """Update buyer or seller address for a deal"""
+def update_deal_address(deal_id, role, address, user_id=None):
+    """Update buyer or seller address AND user_id for a deal"""
     try:
+        data = {}
         if role == 'buyer':
-            supabase.table('deals').update({'buyer_address': address}).eq('deal_id', deal_id).execute()
+            data['buyer_address'] = address
+            if user_id:
+                data['buyer_id'] = user_id
+            supabase.table('deals').update(data).eq('deal_id', deal_id).execute()
         elif role == 'seller':
-            supabase.table('deals').update({'seller_address': address}).eq('deal_id', deal_id).execute()
+            data['seller_address'] = address
+            if user_id:
+                data['seller_id'] = user_id
+            supabase.table('deals').update(data).eq('deal_id', deal_id).execute()
     except Exception as e:
         print(f"Error updating deal address: {e}")
 

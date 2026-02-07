@@ -242,9 +242,18 @@ async def seller_address_command(update: Update, context: ContextTypes.DEFAULT_T
         
         if deal:
             deal_id = deal[0]
+            existing_buyer_id = deal[1]
             existing_buyer_addr = deal[3]
             
-            database.update_deal_address(deal_id, 'seller', address)
+            # PREVENT SELF-DEALING: Check if user is already Buyer
+            if existing_buyer_id and str(existing_buyer_id) == str(user.id):
+                 await update.message.reply_text(
+                    "❌ <b>You cannot be both Seller and Buyer!</b>",
+                    parse_mode='HTML'
+                )
+                 return
+
+            database.update_deal_address(deal_id, 'seller', address, user_id=user.id)
             
             # Role Declaration Message
             msg = (
@@ -308,9 +317,18 @@ async def buyer_address_command(update: Update, context: ContextTypes.DEFAULT_TY
         
         if deal:
             deal_id = deal[0]
+            existing_seller_id = deal[2]
             existing_seller_addr = deal[4]
             
-            database.update_deal_address(deal_id, 'buyer', address)
+            # PREVENT SELF-DEALING: Check if user is already Seller
+            if existing_seller_id and str(existing_seller_id) == str(user.id):
+                 await update.message.reply_text(
+                    "❌ <b>You cannot be both Buyer and Seller!</b>",
+                    parse_mode='HTML'
+                )
+                 return
+            
+            database.update_deal_address(deal_id, 'buyer', address, user_id=user.id)
             
             # Role Declaration Message
             msg = (
@@ -343,6 +361,60 @@ async def buyer_address_command(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text(
             f"✅ <b>Registered as BUYER with address: <code>{address}</code> ({coin_type})</b>",
             parse_mode='HTML'
+        )
+
+# ... (Previous code) ...
+
+async def check_and_send_transaction_info(update, context, group_id):
+    """Check if both parties ready and send info"""
+    deal = database.get_deal_by_group(group_id)
+    if not deal:
+        return
+
+    # deal structure: (deal_id, buyer_id, seller_id, buyer_address, seller_address, bot_address, status)
+    
+    buyer_addr = deal[3]
+    seller_addr = deal[4]
+    
+    if buyer_addr and seller_addr:
+        # Both ready! Trigger Info.
+        
+        # 1. Detect Network from BUYER address
+        is_valid, network = validators.validate_crypto_address(buyer_addr)
+        if not network:
+            network = "Unknown"
+        
+        # 2. Fetch Bot Address
+        bot_wallet = database.get_config(f"wallet_{network}")
+        
+        if not bot_wallet:
+             bot_wallet = "NOT_SET_CONTACT_ADMIN"
+        
+        # Construct Message (Without Blockchain Link)
+        msg = (
+            "📍 <b>TRANSACTION INFORMATION</b>\n\n"
+            "⚡️ <b>SELLER</b>\n"
+            f"<a href='tg://user?id={deal[2]}'>Seller</a>\n"
+            f"[{deal[2]}]\n\n"
+            "⚡️ <b>BUYER</b>\n"
+            f"<a href='tg://user?id={deal[1]}'>Buyer</a>\n"
+            f"[{deal[1]}]\n\n"
+            "📝 <b>TRANSACTION ID</b>\n"
+            f"<code>{deal[0]}</code>\n\n"
+            "🟢 <b>ESCROW ADDRESS:</b>\n"
+            f"<code>{bot_wallet}</code> [{network}]\n\n"
+            "⚠️ <b>IMPORTANT: AVOID SCAMS!</b>\n\n"
+            "<b>Useful commands:</b>\n"
+            "🗒 <code>/pay_seller</code> = Always pays the seller.\n"
+            "🗒 <code>/refund_buyer</code> = Always refunds the buyer.\n\n"
+            "Remember, <code>/pay_seller</code> <i>won't refund your money</i> if you're the buyer, regardless of what <i>anyone</i> says."
+        )
+        
+        await context.bot.send_message(
+            chat_id=group_id,
+            text=msg,
+            parse_mode='HTML',
+            disable_web_page_preview=True
         )
 
 @handle_errors
