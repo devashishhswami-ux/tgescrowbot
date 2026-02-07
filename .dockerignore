@@ -1,34 +1,39 @@
-# Exclude unnecessary files from Docker build
+# Exclude everything by default for security and efficiency
+**
+
+# Allow specific code files
+!bot.py
+!config.py
+!database.py
+!messages.py
+!validators.py
+!user_client.py
+!telethon_service.py
+!bot_error_wrapper.py
+
+# Allow requirement files
+!requirements.txt
+!requirements_telethon.txt
+
+# Allow assets needed by the bot (if any)
+!video.mp4
+
+# Allow the Dockerfile itself
+!Dockerfile
+!Dockerfile.bot
+!Dockerfile.telethon
+
+# Exclude sensitive info even if caught by whitelist
 .env
 .env.example
-.git
-.gitignore
-__pycache__
-*.pyc
-venv
 *.session
 *.session-journal
-admin-panel
-*.md
-test_*.py
-setup_*.py
-node_modules
-.gemini
-brain
-logs
-temp
-tmp
-video.mp4
-media/
-sessions/
+**/.git
+**/__pycache__
+**/*.pyc
+venv/
+node_modules/
+admin-panel/
+brain/
+logs/
 TGBOT_FRESH/
-URGENT_FIX_BOT_CRASH.md
-CRITICAL_UPLOAD_THESE_FILES.md
-KOYEB_ENV_COMPLETE.txt
-KOYEB_ENV.txt
-ENV_SETUP_GUIDE.md
-UPTIMEROBOT_SETUP.md
-*.sql
-*.toml
-*.txt
-!requirements.txt

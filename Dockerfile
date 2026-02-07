@@ -7,15 +7,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all necessary Python files
-COPY bot.py .
-COPY config.py .
-COPY database.py .
-COPY messages.py .
-COPY validators.py .
-COPY user_client.py .
-COPY telethon_service.py .
-COPY bot_error_wrapper.py .
+# Copy all whitelisted files from build context
+COPY . .
 
 # Create sessions directory
 RUN mkdir -p /app/sessions
