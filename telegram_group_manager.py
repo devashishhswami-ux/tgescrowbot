@@ -12,26 +12,32 @@ import database
 
 logger = logging.getLogger(__name__)
 
-# Get Telethon credentials from environment or database
-API_ID = os.getenv('API_ID')
-API_HASH = os.getenv('API_HASH')
-
-if not API_ID or not API_HASH:
-    try:
-        API_ID = database.get_config('telegram_api_id')
-        API_HASH = database.get_config('telegram_api_hash')
-        if API_ID:
-            API_ID = int(API_ID)
-    except Exception as e:
-        logger.error(f"Error fetching API credentials from DB: {e}")
-
-if not API_ID or not API_HASH:
-    # Default placeholder or error
-    API_ID = 0
-    API_HASH = ''
+def get_credentials():
+    """
+    Get Telethon credentials from environment or database
+    Returns: (api_id, api_hash) or (None, None)
+    """
+    # Try environment first
+    api_id = os.getenv('API_ID')
+    api_hash = os.getenv('API_HASH')
+    
+    # If not in env, try database
+    if not api_id or not api_hash:
+        try:
+            api_id = database.get_config('telegram_api_id')
+            api_hash = database.get_config('telegram_api_hash')
+        except Exception as e:
+            logger.error(f"Error fetching API credentials from DB: {e}")
+            
+    if api_id and api_hash:
+        try:
+            return int(api_id), api_hash
+        except ValueError:
+            logger.error("API_ID must be an integer")
+            return None, None
+            
     logger.warning("API_ID or API_HASH not found in env or DB")
-else:
-    API_ID = int(API_ID)
+    return None, None
 
 def get_admin_session():
     """
@@ -53,19 +59,15 @@ def get_admin_session():
 async def create_escrow_group(deal_id, bot_username=None):
     """
     Create a Telegram escrow group using admin session
-    
-    Args:
-        deal_id: Unique identifier for this deal
-        bot_username: Username of the bot (without @)
-    
-    Returns:
-        dict: {
-            'success': bool,
-            'group_id': int,
-            'invite_link': str,
-            'error': str (if failed)
-        }
     """
+    # Get credentials dynamically
+    api_id, api_hash = get_credentials()
+    
+    if not api_id or not api_hash:
+        return {
+            'success': False,
+            'error': 'Configuration Error: API ID or Hash is missing. Please set them in the Admin Dashboard > Settings > Telegram.'
+        }
     client = None
     try:
         # Get admin session from database
