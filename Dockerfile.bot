@@ -1,4 +1,4 @@
-# Main Bot Dockerfile
+# Main Bot Dockerfile for Koyeb (Synced)
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -7,16 +7,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
-COPY bot.py .
-COPY database.py .
-COPY messages.py .
-COPY .env .
+# Copy all whitelisted files from build context
+# Optimized by .dockerignore (whitelist approach)
+COPY . .
 
 # Create sessions directory
 RUN mkdir -p /app/sessions
 
-# Health check endpoint (simple HTTP server)
+# Health check endpoint
+# Koyeb uses PORT environment variable, defaults to 8000/8080
 EXPOSE 8080
 
 # Run bot

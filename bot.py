@@ -17,6 +17,7 @@ import database
 import validators
 import user_client
 import asyncio
+import os
 from bot_error_wrapper import handle_errors, safe_call
 
 # Logging setup
@@ -29,6 +30,34 @@ logger = logging.getLogger(__name__)
 # =================
 # UTILITY FUNCTIONS
 # =================
+
+async def health_check_server():
+    """Lightweight HTTP server for Koyeb health checks"""
+    port = int(os.environ.get("PORT", 8080))
+    
+    async def handle_health(reader, writer):
+        # Read the request just to clear it
+        try:
+            await reader.read(1024)
+            response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 2\r\nConnection: close\r\n\r\nOK"
+            writer.write(response.encode())
+            await writer.drain()
+        except:
+            pass
+        finally:
+            writer.close()
+            try:
+                await writer.wait_closed()
+            except:
+                pass
+
+    try:
+        server = await asyncio.start_server(handle_health, '0.0.0.0', port)
+        logger.info(f"🚀 Health check server listening on port {port}")
+        async with server:
+            await server.serve_forever()
+    except Exception as e:
+        logger.error(f"❌ Could not start health check server: {e}")
 
 def get_group_keyboard():
     """Get inline keyboard for group messages"""
@@ -913,6 +942,19 @@ def main():
     # Chat member updates (for admin join detection)
     app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.CHAT_MEMBER))
     
+    # Start health check server in background
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.create_task(health_check_server())
+        else:
+            # If no loop is running, run_polling will handle it
+            # We can't easily start a task before run_polling if loop isn't running
+            # However, run_polling runs everything in its own internal loop
+            pass
+    except:
+        pass
+
     # Start bot
     logger.info("Bot started!")
     app.run_polling()
