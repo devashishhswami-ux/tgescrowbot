@@ -1,116 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Middle Crypto Bot</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 400px;
-            max-width: 90%;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-size: 2rem;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-            font-weight: 500;
-        }
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border 0.3s;
-        }
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        button:hover {
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h1>🛡️ Admin Panel</h1>
-        <p class="subtitle">Middle Crypto Bot</p>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div
+        style="background: white; padding: 3rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-width: 450px; width: 100%;">
+        <h1 style="color: #1e293b; text-shadow: none; margin-bottom: 0.5rem; font-size: 2rem; text-align: center;">🔐
+            Admin Login</h1>
+        <p style="color: #64748b; margin-bottom: 2rem; text-align: center;">Enter your password to access the admin
+            panel</p>
+
         <form method="POST">
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter admin password" required autofocus>
+                <input type="password" id="password" name="password" placeholder="Enter admin password" required
+                    autofocus>
             </div>
-            <button type="submit">🔐 Login</button>
+
+            <button type="submit" style="width: 100%;">
+                🚀 Login
+            </button>
         </form>
+
+        <p style="color: #64748b; font-size: 0.875rem; margin-top: 1.5rem; text-align: center;">
+            Default password: <code
+                style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">admin123</code>
+        </p>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

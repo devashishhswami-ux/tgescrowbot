@@ -1,70 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users - Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-</head>
+{% block title %}Bot Users{% endblock %}
 
-<body>
-    {% include 'nav.html' %}
+{% block content %}
+<h1>👥 Bot Users</h1>
 
-    <div class="container">
-        <h1>👥 Bot Users</h1>
-
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search by username or name..." onkeyup="searchTable()">
-        </div>
-
-        <div class="card">
-            <h2>All Users ({{ users|length }})</h2>
-            <table id="usersTable">
-                <thead>
-                    <tr>
-                        <th>User ID</th>
-                        <th>Username</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Started At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user[0] }}</td>
-                        <td>@{{ user[1] or 'N/A' }}</td>
-                        <td>{{ user[2] }}</td>
-                        <td>{{ user[3] or 'N/A' }}</td>
-                        <td>{{ user[4] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="card">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by username or name..." onkeyup="searchTable()">
     </div>
 
-    <script>
-        function searchTable() {
-            let input = document.getElementById('searchInput');
-            let filter = input.value.toUpperCase();
-            let table = document.getElementById('usersTable');
-            let tr = table.getElementsByTagName('tr');
+    <h2>All Users ({{ users|length }})</h2>
 
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName('td');
-                let found = false;
-                for (let j = 0; j < td.length; j++) {
-                    if (td[j].textContent.toUpperCase().indexOf(filter) > -1) {
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Started At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if users %}
+            {% for user in users %}
+            <tr>
+                <td>{{ user[0] }}</td>
+                <td>@{{ user[1] or 'N/A' }}</td>
+                <td>{{ user[2] or 'N/A' }}</td>
+                <td>{{ user[3] or 'N/A' }}</td>
+                <td>{{ user[4] }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: #64748b;">
+                    No users found. Users will appear here when they start the bot.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function searchTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('usersTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const row = tr[i];
+            const cells = row.getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                const cell = cells[j];
+                if (cell) {
+                    const textValue = cell.textContent || cell.innerText;
+                    if (textValue.toUpperCase().indexOf(filter) > -1) {
                         found = true;
                         break;
                     }
                 }
-                tr[i].style.display = found ? '' : 'none';
             }
-        }
-    </script>
-</body>
 
-</html>
+            row.style.display = found ? '' : 'none';
+        }
+    }
+</script>
+{% endblock %}
