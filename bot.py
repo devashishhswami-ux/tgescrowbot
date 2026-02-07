@@ -949,8 +949,29 @@ def main():
     app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.CHAT_MEMBER))
     
     # Start bot
-    logger.info("Bot started!")
-    app.run_polling()
+    # Start bot with conflict handling
+    logger.info("Bot started! (Version: Auto-Group-Creation)")
+    
+    import time
+    from telegram.error import Conflict
+    
+    max_retries = 10
+    retry_delay = 5
+    
+    for i in range(max_retries):
+        try:
+            # Drop pending updates to flush old queue
+            app.run_polling(drop_pending_updates=True, allowed_updates=Update.ALL_TYPES)
+            break
+        except Conflict:
+            logger.warning(f"⚠️ Conflict error detected (Attempt {i+1}/{max_retries}). Another instance is running.")
+            logger.warning(f"Waiting {retry_delay} seconds for old instance to stop...")
+            time.sleep(retry_delay)
+        except Exception as e:
+            logger.error(f"❌ Error running bot: {e}")
+            # Wait a bit before crashing/restarting to avoid rapid restart loops
+            time.sleep(5)
+            raise e
 
 if __name__ == '__main__':
     main()
