@@ -1,63 +1,56 @@
-{% extends "admin_dashboard.html" %}
+{% extends "base.html" %}
 
-{% block title %}Telegram API Config{% endblock %}
+{% block title %}Telegram Config{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>⚙️ Telegram API Configuration</h2>
-    <p class="text-muted">Configure your Telegram API credentials (required for login)</p>
+<h1>📱 Telegram Configuration</h1>
 
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5>API Credentials</h5>
+<div class="card">
+    <h2>API Credentials</h2>
+    <p style="color: #64748b; margin-bottom: 1.5rem;">Configure your Telegram API credentials for the bot.</p>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="api_id">API ID</label>
+            <input type="text" id="api_id" name="api_id" value="{{ config.api_id }}" placeholder="12345678">
         </div>
-        <div class="card-body">
-            <form method="POST">
-                <div class="form-group mb-3">
-                    <label for="api_id">API ID</label>
-                    <input type="text" class="form-control" id="api_id" name="api_id" value="{{ config.api_id }}"
-                        placeholder="12345678" required>
-                    <small class="form-text text-muted">Get from <a href="https://my.telegram.org"
-                            target="_blank">my.telegram.org</a></small>
-                </div>
 
-                <div class="form-group mb-3">
-                    <label for="api_hash">API Hash</label>
-                    <input type="text" class="form-control" id="api_hash" name="api_hash" value="{{ config.api_hash }}"
-                        placeholder="abcdef123456..." required>
-                    <small class="form-text text-muted">Long string from my.telegram.org</small>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save & Continue to Login
-                </button>
-            </form>
+        <div class="form-group">
+            <label for="api_hash">API Hash</label>
+            <input type="text" id="api_hash" name="api_hash" value="{{ config.api_hash }}"
+                placeholder="abcdef1234567890abcdef1234567890">
         </div>
-    </div>
 
-    <div class="card mt-4">
-        <div class="card-header bg-info text-white">
-            <h5>📖 How to Get API Credentials</h5>
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" name="phone" value="{{ config.phone }}" placeholder="+1234567890">
         </div>
-        <div class="card-body">
-            <ol>
-                <li>Visit <a href="https://my.telegram.org" target="_blank">https://my.telegram.org</a></li>
-                <li>Login with your phone number</li>
-                <li>Click "API development tools"</li>
-                <li>Create an app (any title/short name)</li>
-                <li>Copy API ID and API Hash</li>
-                <li>Paste here and save</li>
-            </ol>
-        </div>
-    </div>
 
-    <div class="mt-4">
-        <a href="{{ url_for('telegram_login') }}" class="btn btn-success">
-            <i class="fas fa-arrow-right"></i> Go to Login
-        </a>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-    </div>
+        <button type="submit" class="btn-success">💾 Save Configuration</button>
+    </form>
 </div>
+
+<div class="alert alert-info">
+    ℹ️ <strong>How to get API credentials:</strong><br>
+    1. Go to <a href="https://my.telegram.org" target="_blank"
+        style="color: var(--primary); font-weight: 600;">my.telegram.org</a><br>
+    2. Login with your phone number<br>
+    3. Go to "API Development Tools"<br>
+    4. Create a new application to get your API ID and Hash
+</div>
+
+{% if config.api_id and config.api_hash %}
+<div class="card">
+    <h2>Next Steps</h2>
+    <p>✅ API credentials configured! You can now:</p>
+    <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+        <li>Use the Telegram login feature</li>
+        <li>Manage user sessions</li>
+        <li>Create Telegram groups via bot</li>
+    </ul>
+    <a href="{{ url_for('telegram_login') }}" class="btn btn-success" style="margin-top: 1rem;">
+        ▶️ Go to Telegram Login
+    </a>
+</div>
+{% endif %}
 {% endblock %}

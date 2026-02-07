@@ -1,131 +1,81 @@
-{% extends "admin_dashboard.html" %}
+{% extends "base.html" %}
 
 {% block title %}Webhook Manager{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>🔧 Bot Webhook Manager</h2>
+<h1>🔗 Webhook Manager</h1>
 
-    <!-- Current Webhook Status -->
-    <div class="card mt-4">
-        <div class="card-header {% if webhook_info.url %}bg-success{% else %}bg-info{% endif %} text-white">
-            <h5>Current Webhook Status</h5>
-        </div>
-        <div class="card-body">
-            {% if webhook_info.url %}
-            <div class="alert alert-warning">
-                <strong>⚠️ Webhook Mode Active</strong>
-                <p>Your bot is using webhook mode. This might cause issues if the webhook URL is unreachable.</p>
-            </div>
-            <table class="table table-striped">
-                <tr>
-                    <th>Webhook URL:</th>
-                    <td><code>{{ webhook_info.url }}</code></td>
-                </tr>
-                <tr>
-                    <th>Pending Updates:</th>
-                    <td>{{ webhook_info.pending_update_count or 0 }}</td>
-                </tr>
-                <tr>
-                    <th>Last Error:</th>
-                    <td>{{ webhook_info.last_error_message or 'None' }}</td>
-                </tr>
-                <tr>
-                    <th>Last Error Date:</th>
-                    <td>{{ webhook_info.last_error_date or 'Never' }}</td>
-                </tr>
-            </table>
-            {% else %}
-            <div class="alert alert-success">
-                <strong>✅ Polling Mode</strong>
-                <p>No webhook set. Bot is running in polling mode (recommended for Koyeb).</p>
-            </div>
+<div class="card">
+    <h2>Current Webhook Status</h2>
+
+    {% if webhook_info %}
+    <table>
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>URL</strong></td>
+                <td>
+                    {% if webhook_info.url %}
+                    <code>{{ webhook_info.url }}</code>
+                    {% else %}
+                    <span style="color: #64748b;">Not set (polling mode)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Has Custom Certificate</strong></td>
+                <td>{{ '✅ Yes' if webhook_info.has_custom_certificate else '❌ No' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Pending Updates</strong></td>
+                <td><strong>{{ webhook_info.pending_update_count or 0 }}</strong></td>
+            </tr>
+            {% if webhook_info.last_error_date %}
+            <tr>
+                <td><strong>Last Error</strong></td>
+                <td style="color: var(--danger);">{{ webhook_info.last_error_message }}</td>
+            </tr>
             {% endif %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: #64748b;">No webhook information available</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Webhook Actions</h2>
+
+    <form method="POST" style="margin-bottom: 1rem;">
+        <input type="hidden" name="action" value="set">
+        <div class="form-group">
+            <label for="webhook_url">Set Webhook URL</label>
+            <input type="text" id="webhook_url" name="webhook_url" placeholder="https://your-domain.com/webhook"
+                required>
         </div>
+        <button type="submit" class="btn-success">🔗 Set Webhook</button>
+    </form>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <form method="POST" style="display: inline;">
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="btn-danger">🗑️ Delete Webhook</button>
+        </form>
+
+        <form method="POST" style="display: inline;">
+            <input type="hidden" name="action" value="fix">
+            <button type="submit" class="btn-secondary">🔧 Fix (Switch to Polling)</button>
+        </form>
     </div>
+</div>
 
-    <!-- Quick Fix -->
-    <div class="card mt-4">
-        <div class="card-header bg-danger text-white">
-            <h5>🚨 Quick Fix</h5>
-        </div>
-        <div class="card-body">
-            <p><strong>If your bot is not responding:</strong></p>
-            <ol>
-                <li>Click "Fix Webhook" below to delete any existing webhook</li>
-                <li>Restart your bot on Koyeb</li>
-                <li>Bot will automatically use polling mode</li>
-            </ol>
-
-            <form method="POST" onsubmit="return confirm('This will delete the current webhook. Continue?');">
-                <input type="hidden" name="action" value="fix">
-                <button type="submit" class="btn btn-danger btn-lg">
-                    <i class="fas fa-wrench"></i> Fix Webhook (Delete & Use Polling)
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Advanced Options -->
-    <div class="card mt-4">
-        <div class="card-header bg-secondary text-white">
-            <h5>⚙️ Advanced Options</h5>
-        </div>
-        <div class="card-body">
-            <h6>Delete Webhook</h6>
-            <p>Remove current webhook. Bot will switch to polling mode.</p>
-            <form method="POST" style="display: inline;" onsubmit="return confirm('Delete webhook?');">
-                <input type="hidden" name="action" value="delete">
-                <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-trash"></i> Delete Webhook
-                </button>
-            </form>
-
-            <hr class="my-4">
-
-            <h6>Set Custom Webhook</h6>
-            <p>Set a custom webhook URL (for advanced users only).</p>
-            <form method="POST">
-                <input type="hidden" name="action" value="set">
-                <div class="input-group">
-                    <input type="url" name="webhook_url" class="form-control"
-                        placeholder="https://your-domain.com/webhook" required>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check"></i> Set Webhook
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Information -->
-    <div class="card mt-4">
-        <div class="card-header bg-info text-white">
-            <h5>ℹ️ About Webhooks</h5>
-        </div>
-        <div class="card-body">
-            <h6>Polling Mode (Recommended for Koyeb)</h6>
-            <ul>
-                <li>Bot actively checks for updates</li>
-                <li>Works everywhere</li>
-                <li>No URL required</li>
-                <li>Easy to deploy</li>
-            </ul>
-
-            <h6>Webhook Mode</h6>
-            <ul>
-                <li>Telegram sends updates to your URL</li>
-                <li>Requires public HTTPS URL</li>
-                <li>Can cause issues if URL changes</li>
-                <li>Use only if you know what you're doing</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-    </div>
+<div class="alert alert-info">
+    ℹ️ <strong>Info:</strong> Webhooks allow Telegram to push updates to your server. If you're not using webhooks, the
+    bot will use polling mode to fetch updates.
 </div>
 {% endblock %}

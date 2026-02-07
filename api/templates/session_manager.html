@@ -1,60 +1,68 @@
-{% extends "admin_dashboard.html" %}
+{% extends "base.html" %}
 
-{% block title %}Telegram Session Manager{% endblock %}
+{% block title %}Session Manager{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>📱 Telegram Session Manager</h2>
+<h1>📱 Telegram Session Manager</h1>
 
-    {% if session_data and session_data.connected %}
-    <div class="card mt-4">
-        <div class="card-header bg-success text-white">
-            <h5>✅ Connected Session</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <tr>
-                    <th>Phone Number:</th>
-                    <td>{{ session_data.phone }}</td>
-                </tr>
-                <tr>
-                    <th>User ID:</th>
-                    <td>{{ session_data.user_id }}</td>
-                </tr>
-                <tr>
-                    <th>Name:</th>
-                    <td>{{ session_data.first_name }} {{ session_data.last_name or '' }}</td>
-                </tr>
-                <tr>
-                    <th>Username:</th>
-                    <td>@{{ session_data.username or 'N/A' }}</td>
-                </tr>
-            </table>
+<div class="card">
+    <h2>Session Status</h2>
 
-            <form method="POST" action="{{ url_for('telegram_logout') }}"
-                onsubmit="return confirm('Are you sure you want to logout? You will need to re-authenticate.');">
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout from Telegram
-                </button>
-            </form>
-        </div>
+    {% if session_data.exists %}
+    <div
+        style="background: #d1fae5; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--success); margin-bottom: 1rem;">
+        <strong style="color: #065f46;">✅ Active Session</strong>
     </div>
-    {% elif session_data %}
-    <div class="alert alert-warning">
-        <h5>⚠️ Session Not Authorized</h5>
-        <p>Session file exists but is not authorized. Please run the authentication script.</p>
-    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Phone</strong></td>
+                <td><code>{{ session_data.phone }}</code></td>
+            </tr>
+            <tr>
+                <td><strong>User ID</strong></td>
+                <td><code>{{ session_data.user_id }}</code></td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>{{ session_data.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Username</strong></td>
+                <td>@{{ session_data.username }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form method="POST" action="{{ url_for('telegram_logout') }}" style="margin-top: 1rem;">
+        <button type="submit" class="btn-danger" onclick="return confirm('Logout from Telegram session?');">
+            🚪 Logout
+        </button>
+    </form>
     {% else %}
-    <div class="alert alert-info">
-        <h5>ℹ️ No Session Found</h5>
-        <p>No Telegram session found. Please run <code>python auth_telethon.py</code> to create one.</p>
+    <div style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--warning);">
+        <strong style="color: #92400e;">⚠️ No Active Session</strong>
+        <p style="color: #92400e; margin-top: 0.5rem;">You need to login to Telegram first.</p>
     </div>
-    {% endif %}
 
-    <div class="mt-4">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-    </div>
+    <a href="{{ url_for('telegram_config') }}" class="btn btn-success" style="margin-top: 1rem;">
+        ⚙️ Configure API
+    </a>
+    <a href="{{ url_for('telegram_login') }}" class="btn" style="margin-top: 1rem;">
+        📱 Login to Telegram
+    </a>
+    {% endif %}
+</div>
+
+<div class="alert alert-info">
+    ℹ️ <strong>Note:</strong> Session management is not available in serverless deployments. Sessions require persistent
+    file storage.
 </div>
 {% endblock %}
