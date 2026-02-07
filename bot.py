@@ -226,10 +226,21 @@ async def seller_address_command(update: Update, context: ContextTypes.DEFAULT_T
         if deal:
             deal_id = deal[0]
             database.update_deal_address(deal_id, 'seller', address)
-            await update.message.reply_text(
-                f"✅ <b>Seller address registered: <code>{address}</code> ({coin_type})</b>",
-                parse_mode='HTML'
+            
+            # Role Declaration Message
+            msg = (
+                "📍 <b>ESCROW ROLE DECLARATION</b>\n\n"
+                f"👤 <b>SELLER</b> <a href='tg://user?id={user.id}'>{user.first_name}</a> | Userid: [{user.id}]\n\n"
+                "✅ <b>SELLER WALLET</b>\n"
+                f"<code>{address}</code> [{coin_type}]\n\n"
+                "💬 <b>Buyer, please enter your receiving address using:</b> <code>/buyer ADDRESS</code>\n"
+                f"💡 <i>Replace ADDRESS with your {coin_type} wallet address.</i>"
             )
+            
+            await update.message.reply_text(msg, parse_mode='HTML')
+            
+            # Check if both ready
+            await check_and_send_transaction_info(update, context, group_id)
         else:
             await update.message.reply_text(
                 "<b>No active deal found in this group.</b>",
@@ -273,10 +284,21 @@ async def buyer_address_command(update: Update, context: ContextTypes.DEFAULT_TY
         if deal:
             deal_id = deal[0]
             database.update_deal_address(deal_id, 'buyer', address)
-            await update.message.reply_text(
-                f"✅ <b>Buyer address registered: <code>{address}</code> ({coin_type})</b>",
-                parse_mode='HTML'
+            
+            # Role Declaration Message
+            msg = (
+                "📍 <b>ESCROW ROLE DECLARATION</b>\n\n"
+                f"👤 <b>BUYER</b> <a href='tg://user?id={user.id}'>{user.first_name}</a> | Userid: [{user.id}]\n\n"
+                "✅ <b>BUYER WALLET</b>\n"
+                f"<code>{address}</code> [{coin_type}]\n\n"
+                "💬 <b>Seller, please enter your receiving address using:</b> <code>/seller ADDRESS</code>\n"
+                f"💡 <i>Replace ADDRESS with your {coin_type} wallet address.</i>"
             )
+            
+            await update.message.reply_text(msg, parse_mode='HTML')
+
+            # Check if both ready
+            await check_and_send_transaction_info(update, context, group_id)
         else:
             await update.message.reply_text(
                 "<b>No active deal found in this group.</b>",
