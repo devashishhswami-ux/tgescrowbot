@@ -1,11 +1,12 @@
 """
 Telegram Authentication Module
 Uses Telethon with StringSession for serverless compatibility
+Fixed for stateless serverless environment
 """
 import os
 from telethon import TelegramClient
 from telethon.sessions import StringSession
-from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError
+from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError, PhoneCodeExpiredError
 
 class TelegramAuth:
     def __init__(self):
@@ -13,7 +14,6 @@ class TelegramAuth:
         self.api_hash = os.getenv('API_HASH', '')
         self.client = None
         self.phone = None
-        self.phone_code_hash = None
         
     async def send_code(self, phone):
         """Send verification code to phone number"""
@@ -25,90 +25,107 @@ class TelegramAuth:
             # Send code
             self.phone = phone
             result = await self.client.send_code_request(phone)
-            self.phone_code_hash = result.phone_code_hash
+            
+            # Important: disconnect but save the phone_code_hash
+            phone_code_hash = result.phone_code_hash
+            await self.client.disconnect()
             
             return {
                 'success': True,
-                'phone_code_hash': self.phone_code_hash,
+                'phone_code_hash': phone_code_hash,
                 'message': f'Verification code sent to {phone}'
             }
         except Exception as e:
+            if self.client:
+                await self.client.disconnect()
             return {
                 'success': False,
                 'error': str(e)
             }
     
-    async def verify_code(self, phone, code, phone_code_hash):
-        """Verify the code and complete login"""
+    async def verify_code(self, phone, code):
+        """Verify the code and complete login - simplified for serverless"""
         try:
-            if not self.client:
-                self.client = TelegramClient(StringSession(), self.api_id, self.api_hash)
-                await self.client.connect()
+            # Create a fresh client for this request
+            client = TelegramClient(StringSession(), self.api_id, self.api_hash)
+            await client.connect()
             
-            self.phone = phone
-            self.phone_code_hash = phone_code_hash
-            
-            # Sign in with code
+            # Sign in with phone and code - let Telegram handle the code_hash internally
             try:
-                await self.client.sign_in(phone, code, phone_code_hash=phone_code_hash)
+                await client.send_code_request(phone)  # Re-request to establish session
+                result = await client.sign_in(phone, code)
+                
+                # Get session string
+                session_string = client.session.save()
+                
+                # Get user info
+                me = await client.get_me()
+                user_data = {
+                    'id': me.id,
+                    'phone': me.phone,
+                    'username': me.username,
+                    'first_name': me.first_name,
+                    'last_name': me.last_name
+                }
+                
+                await client.disconnect()
+                
+                return {
+                    'success': True,
+                    'session_string': session_string,
+                    'user_data': user_data,
+                    'message': 'Successfully logged in!'
+                }
+                
             except SessionPasswordNeededError:
-                # 2FA is enabled
+                # Save the session temporarily for 2FA continuation
+                temp_session = client.session.save()
+                await client.disconnect()
+                
                 return {
                     'success': False,
                     'requires_password': True,
+                    'temp_session': temp_session,
                     'message': '2FA enabled. Please enter your password.'
                 }
             
-            # Get session string
-            session_string = self.client.session.save()
-            
-            # Get user info
-            me = await self.client.get_me()
-            user_data = {
-                'id': me.id,
-                'phone': me.phone,
-                'username': me.username,
-                'first_name': me.first_name,
-                'last_name': me.last_name
-            }
-            
-            await self.client.disconnect()
-            
-            return {
-                'success': True,
-                'session_string': session_string,
-                'user_data': user_data,
-                'message': 'Successfully logged in!'
-            }
-            
         except PhoneCodeInvalidError:
+            if 'client' in locals():
+                await client.disconnect()
             return {
                 'success': False,
                 'error': 'Invalid verification code. Please try again.'
             }
+        except PhoneCodeExpiredError:
+            if 'client' in locals():
+                await client.disconnect()
+            return {
+                'success': False,
+                'error': 'Verification code expired. Please request a new code.'
+            }
         except Exception as e:
+            if 'client' in locals():
+                await client.disconnect()
             return {
                 'success': False,
                 'error': str(e)
             }
     
-    async def verify_password(self, password):
-        """Verify 2FA password"""
+    async def verify_password(self, temp_session, password):
+        """Verify 2FA password using temporary session"""
         try:
-            if not self.client:
-                return {
-                    'success': False,
-                    'error': 'Session expired. Please start over.'
-                }
+            # Restore the client from temporary session
+            client = TelegramClient(StringSession(temp_session), self.api_id, self.api_hash)
+            await client.connect()
             
             # Sign in with password
-            await self.client.sign_in(password=password)
+            await client.sign_in(password=password)
             
-            # Get session string
-            session_string = self.client.session.save()
+            # Get final session string
+            session_string = client.session.save()
             
             # Get user info
-            me = await self.client.get_me()
+            me = await client.get_me()
             user_data = {
                 'id': me.id,
                 'phone': me.phone,
@@ -117,7 +134,7 @@ class TelegramAuth:
                 'last_name': me.last_name
             }
             
-            await self.client.disconnect()
+            await client.disconnect()
             
             return {
                 'success': True,
@@ -127,6 +144,8 @@ class TelegramAuth:
             }
             
         except Exception as e:
+            if 'client' in locals():
+                await client.disconnect()
             return {
                 'success': False,
                 'error': str(e)
