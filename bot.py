@@ -19,6 +19,7 @@ import asyncio
 import os
 from bot_error_wrapper import handle_errors, safe_call
 from create_command import create_command
+import telegram_group_manager
 
 # Logging setup
 logging.basicConfig(
@@ -818,37 +819,22 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             bot_username = context.bot.username
             
             # Call Telethon microservice to create group
+            # Call Telethon directly to create group (No HTTP request needed)
             try:
-                response = requests.post(
-                    'http://localhost:5001/create-group',
-                    json={
-                        'buyer_id': buyer_id,
-                        'seller_id': seller_id,
-                        'bot_username': bot_username,
-                        'deal_id': deal_id
-                    },
-                    timeout=30
+                result = await telegram_group_manager.create_escrow_group(
+                    deal_id=deal_id,
+                    bot_username=bot_username
                 )
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    if data.get('success'):
-                        group_id = data['group_id']
-                        invite_link = data['invite_link']
-                    else:
-                        raise Exception(data.get('error', 'Unknown error'))
+                if result['success']:
+                    group_id = result['group_id']
+                    invite_link = result['invite_link']
                 else:
-                    try:
-                        error_data = response.json()
-                        error_msg = error_data.get('error', 'Unknown service error')
-                    except:
-                        error_msg = response.text or 'Unknown service error'
-                    raise Exception(f"Service Error: {error_msg}")
+                    raise Exception(result.get('error', 'Unknown error'))
                     
-            except requests.exceptions.ConnectionError:
-                raise Exception("Telethon service is not running. Please start it first.")
-            except requests.exceptions.Timeout:
-                raise Exception("Group creation timed out. Please try again.")
+            except Exception as e:
+                logger.error(f"Error creating group via button: {e}")
+                raise Exception(f"Failed to create group: {str(e)}")
             
             # Store in database
             database.create_deal(deal_id, buyer_id, seller_id, group_id)
