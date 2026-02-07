@@ -29,6 +29,22 @@ except Exception as e:
         @staticmethod
         def update_editable_content(key, content):
             return False
+
+# MONKEY PATCH: Ensure update_config exists regardless of which database.py is loaded
+if DB_AVAILABLE and not hasattr(database, 'update_config'):
+    print("⚠️ Monkey-patching database.update_config")
+    def _update_config(key, value):
+        try:
+            if hasattr(database, 'set_config'):
+                return database.set_config(key, value)
+            if hasattr(database, 'supabase') and database.supabase:
+                database.supabase.table('config').upsert({'key': key, 'value': value}).execute()
+                return True
+        except Exception as e:
+            print(f"Error in monkey-patched update_config: {e}")
+        return False
+    database.update_config = _update_config
+            return False
         @staticmethod
         def get_crypto_addresses():
             return []
