@@ -471,16 +471,16 @@ async def join_deal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 @handle_errors
+@handle_errors
 async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Track when members join the group - send admin announcement"""
-    new_members = update.chat_member.new_chat_member
     
-    if new_members and new_members.user:
-        user_id = new_members.user.id
-        
-        # 1. Check if BOT joined (Auto Welcome)
-        if user_id == context.bot.id:
-            logger.info("🤖 Bot joined a new group! Sending welcome message...")
+    # 1. Check MY_CHAT_MEMBER (Bot's own status change)
+    if update.my_chat_member:
+        new_chat_member = update.my_chat_member.new_chat_member
+        if new_chat_member.status in ['member', 'administrator']:
+            # Bot joined/added to a group
+            logger.info("🤖 Bot joined a new group via MY_CHAT_MEMBER! Sending welcome message...")
             try:
                 stats = database.get_statistics()
                 welcome_text = messages.GROUP_WELCOME_TEXT.format(
@@ -496,17 +496,29 @@ async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYP
                     parse_mode='HTML'
                 )
             except Exception as e:
-                logger.error(f"Error sending auto-welcome: {e}")
+                logger.error(f"Error sending auto-welcome (my_chat_member): {e}")
             return
 
-        # 2. Check if ADMIN joined
-        if user_id in ADMIN_USER_IDS:
-            # Send admin join announcement
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=messages.ADMIN_JOIN_MESSAGE,
-                parse_mode='HTML'
-            )
+    # 2. Check CHAT_MEMBER (Other members)
+    if update.chat_member:
+        new_members = update.chat_member.new_chat_member
+        
+        if new_members and new_members.user:
+            user_id = new_members.user.id
+            
+            # Check if BOT joined (via chat_member update - redundant but safe)
+            if user_id == context.bot.id:
+                 # Already handled by my_chat_member usually, but just in case
+                 return
+
+            # Check if ADMIN joined
+            if user_id in ADMIN_USER_IDS:
+                # Send admin join announcement
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=messages.ADMIN_JOIN_MESSAGE,
+                    parse_mode='HTML'
+                )
 
 # ====================
 # OTHER COMMANDS
@@ -944,6 +956,7 @@ def main():
     
     # Chat member updates (for admin join detection)
     app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.CHAT_MEMBER))
+    app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.MY_CHAT_MEMBER))
     
     # Start bot
     # Start bot with conflict handling
