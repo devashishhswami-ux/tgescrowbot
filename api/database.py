@@ -40,7 +40,7 @@ def init_db():
         
         print("✅ Database initialized successfully")
     except Exception as e:
-        print(f("❌ Database init error: {e}")
+        print(f"❌ Database init error: {e}")
 
 def get_statistics():
     """Get current bot statistics"""
