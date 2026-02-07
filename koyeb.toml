@@ -1,0 +1,68 @@
+# Koyeb Deployment Configuration for Telegram Escrow Bot
+
+# This file configures the deployment on Koyeb
+# Services: Main Bot + Telethon Microservice
+
+# Service 1: Main Bot
+name: escrow-bot-main
+services:
+  - name: main-bot
+    type: worker
+    instance_type: nano
+    regions:
+      - fra
+    env:
+      - name: BOT_TOKEN
+        secret: BOT_TOKEN
+      - name: API_ID
+        secret: API_ID
+      - name: API_HASH
+        secret: API_HASH
+      - name: PHONE_NUMBER
+        secret: PHONE_NUMBER
+      - name: SUPABASE_URL
+        secret: SUPABASE_URL
+      - name: SUPABASE_KEY
+        secret: SUPABASE_KEY
+      - name: SECRET_KEY
+        secret: SECRET_KEY
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    ports:
+      - port: 8080
+        protocol: http
+    health_check:
+      http:
+        path: /health
+        port: 8080
+    persistent_volumes:
+      - mount_path: /app/sessions
+        size: 1
+
+  - name: telethon-service
+    type: web
+    instance_type: nano
+    regions:
+      - fra
+    env:
+      - name: API_ID
+        secret: API_ID
+      - name: API_HASH
+        secret: API_HASH
+      - name: PHONE_NUMBER
+        secret: PHONE_NUMBER
+    build:
+      context: .
+      dockerfile: Dockerfile.telethon
+    ports:
+      - port: 5001
+        protocol: http
+    health_check:
+      http:
+        path: /health
+        port: 5001
+    persistent_volumes:
+      - mount_path: /app/sessions
+        size: 1
+

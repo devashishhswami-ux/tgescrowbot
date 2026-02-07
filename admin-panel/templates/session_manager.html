@@ -1,0 +1,60 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Telegram Session Manager{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📱 Telegram Session Manager</h2>
+
+    {% if session_data and session_data.connected %}
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h5>✅ Connected Session</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tr>
+                    <th>Phone Number:</th>
+                    <td>{{ session_data.phone }}</td>
+                </tr>
+                <tr>
+                    <th>User ID:</th>
+                    <td>{{ session_data.user_id }}</td>
+                </tr>
+                <tr>
+                    <th>Name:</th>
+                    <td>{{ session_data.first_name }} {{ session_data.last_name or '' }}</td>
+                </tr>
+                <tr>
+                    <th>Username:</th>
+                    <td>@{{ session_data.username or 'N/A' }}</td>
+                </tr>
+            </table>
+
+            <form method="POST" action="{{ url_for('telegram_logout') }}"
+                onsubmit="return confirm('Are you sure you want to logout? You will need to re-authenticate.');">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout from Telegram
+                </button>
+            </form>
+        </div>
+    </div>
+    {% elif session_data %}
+    <div class="alert alert-warning">
+        <h5>⚠️ Session Not Authorized</h5>
+        <p>Session file exists but is not authorized. Please run the authentication script.</p>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h5>ℹ️ No Session Found</h5>
+        <p>No Telegram session found. Please run <code>python auth_telethon.py</code> to create one.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
