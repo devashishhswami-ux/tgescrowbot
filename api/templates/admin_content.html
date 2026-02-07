@@ -1,61 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Editor - Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-</head>
+{% block title %}Content Management{% endblock %}
 
-<body>
-    {% include 'nav.html' %}
+{% block content %}
+<h1>📝 Content Management</h1>
 
-    <div class="container">
-        <h1>📝 Content Editor</h1>
+<div class="card">
+    <h2>Editable Content</h2>
+    <p style="color: #64748b; margin-bottom: 1.5rem;">Manage text content displayed in the bot.</p>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <div class="card">
-            <h2>Instructions</h2>
-            <form method="POST">
-                <input type="hidden" name="content_key" value="instructions">
-                <div class="form-group">
-                    <textarea name="content_value"
-                        placeholder="Enter instructions content...">{{ instructions }}</textarea>
-                </div>
-                <button type="submit">💾 Save Instructions</button>
-            </form>
+    {% if contents %}
+    <form method="POST">
+        <div class="form-group">
+            <label for="key">Content Key</label>
+            <select id="key" name="key" required>
+                {% for content in contents %}
+                <option value="{{ content[0] }}">{{ content[0] }}</option>
+                {% endfor %}
+            </select>
         </div>
 
-        <div class="card">
-            <h2>Terms of Service</h2>
-            <form method="POST">
-                <input type="hidden" name="content_key" value="terms">
-                <div class="form-group">
-                    <textarea name="content_value" placeholder="Enter terms of service...">{{ terms }}</textarea>
-                </div>
-                <button type="submit">💾 Save Terms</button>
-            </form>
+        <div class="form-group">
+            <label for="content">Content Text</label>
+            <textarea id="content" name="content" rows="6" required placeholder="Enter content text..."></textarea>
         </div>
 
-        <div class="card">
-            <h2>Welcome Message</h2>
-            <form method="POST">
-                <input type="hidden" name="content_key" value="welcome">
-                <div class="form-group">
-                    <textarea name="content_value" placeholder="Enter welcome message...">{{ welcome }}</textarea>
-                </div>
-                <button type="submit">💾 Save Welcome Message</button>
-            </form>
-        </div>
-    </div>
-</body>
+        <button type="submit" class="btn-success">💾 Save Changes</button>
+    </form>
+    {% else %}
+    <p style="text-align: center; padding: 2rem; color: #64748b;">
+        No editable content configured yet.
+    </p>
+    {% endif %}
+</div>
 
-</html>
+{% if contents %}
+<div class="card">
+    <h2>Current Content</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Content</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for content in contents %}
+            <tr>
+                <td><code>{{ content[0] }}</code></td>
+                <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis;">{{ content[1][:100] }}...</td>
+                <td>{{ content[2] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

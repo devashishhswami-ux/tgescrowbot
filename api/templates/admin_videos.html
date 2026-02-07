@@ -1,84 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Videos - Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-</head>
+{% block title %}Videos{% endblock %}
 
-<body>
-    {% include 'nav.html' %}
+{% block content %}
+<h1>🎥 Video Management</h1>
 
-    <div class="container">
-        <h1>🎥 Video Management</h1>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <div class="card">
-            <h2>Upload New Video</h2>
-            <form method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="file_type">Video Type</label>
-                    <select name="file_type" id="file_type" required>
-                        <option value="">Select video type...</option>
-                        <option value="start_message">Start Message Video</option>
-                        <option value="video_command">/video Command Video</option>
-                        <option value="what_is_escrow">What is Escrow Explainer</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Description (Optional)</label>
-                    <input type="text" name="description" id="description" placeholder="e.g., Tutorial video 2024">
-                </div>
-
-                <div class="form-group">
-                    <label>Select Video File</label>
-                    <input type="file" name="file" accept="video/mp4,video/avi,video/mov" required>
-                    <small style="color: #666; display: block; margin-top: 0.5rem;">Supported: MP4, AVI, MOV | Max:
-                        50MB</small>
-                </div>
-
-                <button type="submit">📤 Upload Video</button>
-            </form>
+<div class="card">
+    <h2>Upload Video</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="video">Select Video File</label>
+            <input type="file" id="video" name="video" accept="video/*" required>
+            <small style="color: #64748b;">Max size: 50MB | Supported: MP4, AVI, MOV</small>
         </div>
+        <button type="submit" class="btn-success">📤 Upload Video</button>
+    </form>
+</div>
 
-        <div class="card">
-            <h2>Uploaded Videos</h2>
-            {% if media_files %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>File Path</th>
-                        <th>Description</th>
-                        <th>Uploaded At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for media in media_files %}
-                    <tr>
-                        <td><strong>{{ media[0] }}</strong></td>
-                        <td><code>{{ media[1] }}</code></td>
-                        <td>{{ media[2] or 'N/A' }}</td>
-                        <td>{{ media[3] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p style="color: #666; font-style: italic;">No videos uploaded yet.</p>
-            {% endif %}
-        </div>
-    </div>
-</body>
+<div class="card">
+    <h2>Uploaded Files ({{ files|length }})</h2>
 
-</html>
+    {% if files %}
+    <table>
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr>
+                <td>{{ file }}</td>
+                <td>
+                    <a href="/static/uploads/{{ file }}" class="btn btn-secondary" target="_blank">📥 Download</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; padding: 2rem; color: #64748b;">
+        No files uploaded yet. Upload your first video above!
+    </p>
+    {% endif %}
+</div>
+
+<div class="alert alert-info">
+    ⚠️ <strong>Note:</strong> Files are stored in /tmp on serverless - they're temporary and will be deleted when the
+    function restarts. Consider using cloud storage (S3, Cloudinary) for permanent storage.
+</div>
+{% endblock %}
