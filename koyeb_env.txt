@@ -1,55 +1,54 @@
 # ========================================
-# KOYEB ENVIRONMENT VARIABLES (For Bot)
+# COMPLETE ENVIRONMENT VARIABLES GUIDE
+# ========================================
+
+# ========================================
+# KOYEB (Bot Deployment)
 # ========================================
 
 BOT_TOKEN=8470449689:AAEHH4KZJi2TCqcWOxpVO0MtHDcTukaEN0k
 SUPABASE_URL=https://odcytmpqzikvysukmqwr.supabase.co
 SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kY3l0bXBxemlrdnlzdWttcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzODYzMzQsImV4cCI6MjA4NTk2MjMzNH0.twm0Q5vkCsMnjIYQjXa83tqfx2EACdIp4_i-NxUcZ0s
 
-# Optional (for admin panel Web App button in bot)
+# Optional (for admin panel Web App button)
 ADMIN_USER_ID=your_telegram_user_id_here
 ADMIN_PANEL_URL=https://your-admin-panel.vercel.app
 
 
 # ========================================
-# VERCEL ENVIRONMENT VARIABLES (For Admin Panel)
+# VERCEL (Admin Panel Deployment)
 # ========================================
 
 SUPABASE_URL=https://odcytmpqzikvysukmqwr.supabase.co
 SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kY3l0bXBxemlrdnlzdWttcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzODYzMzQsImV4cCI6MjA4NTk2MjMzNH0.twm0Q5vkCsMnjIYQjXa83tqfx2EACdIp4_i-NxUcZ0s
-SECRET_KEY=your_random_secret_key_here_change_this
-ADMIN_PANEL_PASSWORD=your_secure_password_here
+SECRET_KEY=generaterandomsecretkeyhere123456789
+ADMIN_PANEL_PASSWORD=YourSecurePassword123
 
 
 # ========================================
-# QUICK SUMMARY:
+# IMPORTANT NOTES:
 # ========================================
 #
-# KOYEB (Bot) - 3 Required + 2 Optional:
-# ✅ BOT_TOKEN
-# ✅ SUPABASE_URL
-# ✅ SUPABASE_KEY
-# - ADMIN_USER_ID (optional)
-# - ADMIN_PANEL_URL (optional)
+# 1. ADMIN_PANEL_PASSWORD:
+#    - REQUIRED for Vercel
+#    - NOT stored in Supabase database
+#    - Only in environment variable
+#    - Change from default!
 #
-# VERCEL (Admin Panel) - 3 Required:
-# ✅ SUPABASE_URL
-# ✅ SUPABASE_KEY
-# ✅ SECRET_KEY
-# ✅ ADMIN_PANEL_PASSWORD
+# 2. SECRET_KEY:
+#    - Used for Flask session encryption
+#    - Generate random string
+#    - Keep it secret!
 #
-# ========================================
-# HOW TO SET ADMIN_PANEL_PASSWORD:
-# ========================================
-# 
-# Option 1: Environment Variable (Recommended)
-# - Set ADMIN_PANEL_PASSWORD in Vercel
-# - Easy to change
-# - More secure
+# 3. Bot needs only 3 variables to work:
+#    - BOT_TOKEN
+#    - SUPABASE_URL  
+#    - SUPABASE_KEY
 #
-# Option 2: Supabase Database
-# - If ADMIN_PANEL_PASSWORD is not set
-# - Falls back to 'admin_password' in config table
-# - Default: admin123
+# 4. Admin Panel needs 4 variables:
+#    - SUPABASE_URL
+#    - SUPABASE_KEY
+#    - SECRET_KEY
+#    - ADMIN_PANEL_PASSWORD
 #
 # ========================================

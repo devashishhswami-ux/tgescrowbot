@@ -59,8 +59,7 @@ CREATE TABLE IF NOT EXISTS config (
 );
 
 INSERT INTO config (key, value) VALUES 
-    ('admin_username', 'MiddleCryptoSupport'),
-    ('admin_password', 'admin123')
+    ('admin_username', 'MiddleCryptoSupport')
 ON CONFLICT (key) DO NOTHING;
 
 -- 6. MEDIA_FILES TABLE

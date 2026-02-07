@@ -17,6 +17,7 @@ import database
 import validators
 import user_client
 import asyncio
+from bot_error_wrapper import handle_errors, safe_call
 
 # Logging setup
 logging.basicConfig(
@@ -45,66 +46,80 @@ def get_group_keyboard():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
-    import os
-    
-    # If in group, send group welcome
-    if update.effective_chat.type in ['group', 'supergroup']:
-        stats = database.get_statistics()
-        welcome_text = messages.GROUP_WELCOME_TEXT.format(
-            total_deals=stats.get('total_deals', 5542),
-            disputes_resolved=stats.get('disputes_resolved', 158)
-        )
-        keyboard = get_group_keyboard()
+    try:
+        import os
         
-        if os.path.exists("video.mp4"):
-            with open("video.mp4", "rb") as video:
-                await update.message.reply_video(
-                    video=video,
-                    caption=welcome_text,
+        # If in group, send group welcome
+        if update.effective_chat.type in ['group', 'supergroup']:
+            stats = database.get_statistics()
+            welcome_text = messages.GROUP_WELCOME_TEXT.format(
+                total_deals=stats.get('total_deals', 5542),
+                disputes_resolved=stats.get('disputes_resolved', 158)
+            )
+            keyboard = get_group_keyboard()
+            
+            if os.path.exists("video.mp4"):
+                with open("video.mp4", "rb") as video:
+                    await update.message.reply_video(
+                        video=video,
+                        caption=welcome_text,
+                        reply_markup=keyboard,
+                        parse_mode='HTML'
+                    )
+            else:
+                await update.message.reply_text(
+                    welcome_text,
                     reply_markup=keyboard,
                     parse_mode='HTML'
                 )
-        else:
-            await update.message.reply_text(
-                welcome_text,
-                reply_markup=keyboard,
+            return
+        
+        # Private chat welcome
+        user_id = update.effective_user.id
+        
+        keyboard = [
+            [InlineKeyboardButton(messages.BTN_WHAT_IS_ESCROW, callback_data='what_is_escrow')],
+            [InlineKeyboardButton(messages.BTN_INSTRUCTIONS, callback_data='instructions')],
+            [InlineKeyboardButton(messages.BTN_TERMS, callback_data='terms')],
+            [InlineKeyboardButton(messages.BTN_CREATE_GROUP, callback_data='create_group')]
+        ]
+        
+        # Add Admin Panel button for admin only (Telegram Web App)
+        try:
+            from config import ADMIN_USER_ID, ADMIN_PANEL_URL
+            if ADMIN_USER_ID > 0 and user_id == ADMIN_USER_ID:
+                keyboard.insert(0, [InlineKeyboardButton(
+                    "🛡️ Admin Panel", 
+                    web_app={'url': ADMIN_PANEL_URL}
+                )])
+        except (ImportError, AttributeError):
+            # Admin config not available, skip admin button
+            pass
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        if os.path.exists("video.mp4"):
+            await update.message.reply_video(
+                video=open("video.mp4", "rb"),
+                caption=f"<b>{messages.WELCOME_TEXT}</b>",
+                reply_markup=reply_markup,
                 parse_mode='HTML'
             )
-        return
-    
-    # Private chat welcome
-    user_id = update.effective_user.id
-    
-    keyboard = [
-        [InlineKeyboardButton(messages.BTN_WHAT_IS_ESCROW, callback_data='what_is_escrow')],
-        [InlineKeyboardButton(messages.BTN_INSTRUCTIONS, callback_data='instructions')],
-        [InlineKeyboardButton(messages.BTN_TERMS, callback_data='terms')],
-        [InlineKeyboardButton(messages.BTN_CREATE_GROUP, callback_data='create_group')]
-    ]
-    
-    # Add Admin Panel button for admin only (Telegram Web App)
-    from config import ADMIN_USER_ID, ADMIN_PANEL_URL
-    if ADMIN_USER_ID > 0 and user_id == ADMIN_USER_ID:
-        keyboard.insert(0, [InlineKeyboardButton(
-            "🛡️ Admin Panel", 
-            web_app={'url': ADMIN_PANEL_URL}
-        )])
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    if os.path.exists("video.mp4"):
-        await update.message.reply_video(
-            video=open("video.mp4", "rb"),
-            caption=f"<b>{messages.WELCOME_TEXT}</b>",
-            reply_markup=reply_markup,
-            parse_mode='HTML'
-        )
-    else:
-        await update.message.reply_text(
-            f"<b>{messages.WELCOME_TEXT}</b>",
-            reply_markup=reply_markup,
-            parse_mode='HTML'
-        )
+        else:
+            await update.message.reply_text(
+                f"<b>{messages.WELCOME_TEXT}</b>",
+                reply_markup=reply_markup,
+                parse_mode='HTML'
+            )
+    except Exception as e:
+        logger.error(f"Error in start command: {e}")
+        try:
+            await update.message.reply_text(
+                "⚠️ Welcome! The bot is experiencing technical issues. Please try again later.",
+                parse_mode='HTML'
+            )
+        except:
+            pass
 
 async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /menu command - show keyboard in groups"""
