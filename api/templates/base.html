@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Admin Panel{% endblock %} - Escrow Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Modern Admin Panel - Professional UI */
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -15,250 +15,229 @@
             --danger: #ef4444;
             --info: #3b82f6;
             --dark: #1e293b;
+            --light: #f8fafc;
             --white: #ffffff;
+            --gray: #64748b;
             --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 0.75rem;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--light);
             min-height: 100vh;
             color: var(--dark);
             line-height: 1.6;
+            padding-bottom: 2rem;
         }
 
+        /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            padding: 1rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 3px solid var(--primary);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        nav h1 {
-            font-size: 1.5rem;
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
             background: var(--gradient-1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 800;
-            display: inline-block;
-            margin-bottom: 0.5rem;
         }
 
-        nav a {
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
             color: var(--dark);
             text-decoration: none;
             padding: 0.5rem 1rem;
-            margin: 0 0.25rem;
             border-radius: 0.5rem;
-            transition: all 0.3s ease;
             font-weight: 500;
-            display: inline-block;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        nav a:hover {
+        .nav-links a:hover,
+        .nav-links a.active {
             background: var(--primary);
             color: var(--white);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
         }
 
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Container & Layout */
         .container {
             max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
+            margin: 0 auto;
+            padding: 1.5rem;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: var(--white);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
             font-weight: 800;
         }
 
         h2 {
-            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
             color: var(--dark);
             font-weight: 700;
-            font-size: 1.75rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid var(--primary);
-            display: inline-block;
+        }
+
+        /* Cards & Stats */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
             background: var(--white);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary);
+            gap: 1rem;
         }
 
         .stat-icon {
-            font-size: 3rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             background: var(--gradient-1);
-            width: 80px;
-            height: 80px;
-            border-radius: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
+            color: white;
         }
 
         .stat-info h3 {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--dark);
+            line-height: 1;
         }
 
         .stat-info p {
-            color: #64748b;
+            font-size: 0.8rem;
+            color: var(--gray);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .card {
-            background: var(--white);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        /* Responsive Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -1.5rem;
+            /* Negative margin to bleed on mobile */
+            padding: 0 1.5rem;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 600px;
+            /* Ensure table doesn't squish too much */
         }
 
-        thead {
-            background: var(--gradient-1);
-        }
-
-        thead th {
-            color: var(--white);
-            padding: 1rem;
-            text-align: left;
+        th {
+            background: #f1f5f9;
+            color: var(--gray);
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.875rem;
-        }
-
-        thead th:first-child {
-            border-top-left-radius: 0.5rem;
-        }
-
-        thead th:last-child {
-            border-top-right-radius: 0.5rem;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
-        }
-
-        tbody tr:hover {
-            background: #f8fafc;
-            transform: scale(1.01);
-        }
-
-        tbody td {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
             padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .btn,
-        button,
-        input[type="submit"] {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 1rem;
-            background: var(--gradient-1);
-            color: var(--white);
-            box-shadow: var(--shadow);
-            margin: 0.25rem;
+            font-size: 0.9rem;
+            color: var(--dark);
         }
 
-        .btn:hover,
-        button:hover,
-        input[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="email"],
-        input[type="number"],
-        input[type="file"],
+        input,
         select,
         textarea {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem;
             border: 2px solid #e2e8f0;
             border-radius: 0.5rem;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-            margin-bottom: 1rem;
+            /* Prevent zoom on mobile */
+            transition: border-color 0.2s;
+            font-family: inherit;
         }
 
         input:focus,
@@ -266,95 +245,149 @@
         textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
             font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+            transition: transform 0.1s;
+            gap: 0.5rem;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
             color: var(--dark);
         }
 
+        /* Alerts */
         .alert {
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--success);
+            background: #dcfce7;
+            color: #166534;
         }
 
         .alert-danger {
             background: #fee2e2;
             color: #991b1b;
-            border-left: 4px solid var(--danger);
-        }
-
-        .alert-warning {
-            background: #fef3c7;
-            color: #92400e;
-            border-left: 4px solid var(--warning);
         }
 
         .alert-info {
             background: #dbeafe;
             color: #1e40af;
-            border-left: 4px solid var(--info);
         }
 
-        .search-box {
-            margin-bottom: 1.5rem;
-        }
-
-        .search-box input {
-            max-width: 400px;
-        }
-
+        /* Mobile Optimization */
         @media (max-width: 768px) {
-            nav {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: var(--shadow-lg);
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links a {
+                width: 100%;
+                padding: 1rem;
+                text-align: center;
+                background: #f8fafc;
+            }
+
+            .container {
                 padding: 1rem;
             }
 
-            nav a {
-                display: block;
-                margin: 0.25rem 0;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
             h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            /* Better mobile tables */
+            .table-responsive {
+                margin: 0 -1rem;
+                padding: 0 1rem;
             }
         }
     </style>
 </head>
 
 <body>
-    {% include 'nav.html' %}
+    <nav>
+        <div class="nav-container">
+            <div class="nav-brand">🛡️ Escrow Admin</div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('dashboard') }}" {% if request.endpoint=='dashboard' %}class="active" {% endif %}>📊
+                    Dashboard</a>
+                <a href="{{ url_for('users') }}" {% if request.endpoint=='users' %}class="active" {% endif %}>👥
+                    Users</a>
+                <a href="{{ url_for('videos') }}" {% if request.endpoint=='videos' %}class="active" {% endif %}>🎥
+                    Videos</a>
+                <a href="{{ url_for('content') }}" {% if request.endpoint=='content' %}class="active" {% endif %}>📝
+                    Content</a>
+                <a href="{{ url_for('telegram_login') }}" {% if request.endpoint=='telegram_login' %}class="active" {%
+                    endif %}>📱 Telegram</a>
+                <a href="{{ url_for('crypto_addresses') }}" {% if request.endpoint=='crypto_addresses' %}class="active"
+                    {% endif %}>💰 Crypto</a>
+                <a href="{{ url_for('webhook_manager') }}" {% if request.endpoint=='webhook_manager' %}class="active" {%
+                    endif %}>🔧 Webhook</a>
+                <a href="{{ url_for('settings') }}" {% if request.endpoint=='settings' %}class="active" {% endif %}>⚙️
+                    Settings</a>
+                <a href="{{ url_for('logout') }}" style="color: var(--danger);">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
 
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -367,6 +400,32 @@
 
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        // Telegram Web App Initialization
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            // Set header color to match nav
+            window.Telegram.WebApp.setHeaderColor('#ffffff');
+            window.Telegram.WebApp.setBackgroundColor('#f8fafc');
+        }
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const navLinks = document.getElementById('navLinks');
+            const btn = document.querySelector('.mobile-menu-btn');
+            if (!navLinks.contains(event.target) && !btn.contains(event.target) && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 
 </html>
