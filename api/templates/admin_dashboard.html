@@ -3,55 +3,111 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>📊 Dashboard</h1>
+<div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;">Dashboard</h1>
+    <p style="color: var(--gray); font-size: 0.95rem;">System Overview</p>
+</div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-info">
-            <h3>{{ users_count }}</h3>
-            <p>Total Users</p>
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- Users Card -->
+    <div style="background: white; padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-lg)'"
+        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow)'">
+        <div
+            style="width: 56px; height: 56px; background: rgba(99, 102, 241, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: var(--primary);">
+            👥</div>
+        <div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--dark); line-height: 1.2;">{{ users_count }}
+            </h3>
+            <p style="color: var(--gray); font-size: 0.9rem; font-weight: 500;">Total Users</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon">💼</div>
-        <div class="stat-info">
-            <h3>{{ stats.get('total_deals', 0) }}</h3>
-            <p>Total Deals</p>
+    <!-- Deals Card -->
+    <div style="background: white; padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-lg)'"
+        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow)'">
+        <div
+            style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: var(--success);">
+            💼</div>
+        <div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--dark); line-height: 1.2;">{{
+                stats.get('total_deals', 0) }}</h3>
+            <p style="color: var(--gray); font-size: 0.9rem; font-weight: 500;">Active Deals</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon">⚖️</div>
-        <div class="stat-info">
-            <h3>{{ stats.get('disputes_resolved', 0) }}</h3>
-            <p>Disputes Resolved</p>
+    <!-- Disputes Card -->
+    <div style="background: white; padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-lg)'"
+        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='var(--shadow)'">
+        <div
+            style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: var(--warning);">
+            ⚖️</div>
+        <div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--dark); line-height: 1.2;">{{
+                stats.get('disputes_resolved', 0) }}</h3>
+            <p style="color: var(--gray); font-size: 0.9rem; font-weight: 500;">Disputes Resolved</p>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <h2>Recent Users</h2>
-    <div class="table-responsive">
-        <table style="white-space: nowrap;">
+<div
+    style="background: white; padding: 0; border-radius: 24px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); overflow: hidden;">
+    <div
+        style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--dark); margin: 0;">Recent Users</h2>
+        <a href="{{ url_for('users') }}"
+            style="color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none;">View All</a>
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; white-space: nowrap;">
             <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Name</th>
-                    <th>Started At</th>
+                <tr style="background: #f8fafc;">
+                    <th
+                        style="text-align: left; padding: 1rem 2rem; color: var(--gray); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        User</th>
+                    <th
+                        style="text-align: left; padding: 1rem 2rem; color: var(--gray); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        ID</th>
+                    <th
+                        style="text-align: right; padding: 1rem 2rem; color: var(--gray); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Joined</th>
                 </tr>
             </thead>
             <tbody>
+                {% if recent_users %}
                 {% for user in recent_users %}
-                <tr>
-                    <td data-label="User ID">{{ user[0] }}</td>
-                    <td data-label="Username">@{{ user[1] or 'N/A' }}</td>
-                    <td data-label="Name">{{ user[2] }}</td>
-                    <td data-label="Started At">{{ user[4] }}</td>
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.1s;"
+                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem 2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div
+                                style="width: 36px; height: 36px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);">
+                                {{ user[2][0]|upper if user[2] else 'U' }}
+                            </div>
+                            <div>
+                                <div style="color: var(--dark); font-weight: 600; font-size: 0.9rem;">{{ user[2] or
+                                    'Unknown' }}</div>
+                                <div style="color: var(--gray); font-size: 0.8rem;">@{{ user[1] or 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td
+                        style="padding: 1rem 2rem; color: var(--gray); font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 0.85rem;">
+                        {{ user[0] }}</td>
+                    <td
+                        style="padding: 1rem 2rem; text-align: right; color: var(--gray); font-size: 0.9rem; font-weight: 500;">
+                        {{ user[4].split('T')[0] if user[4] else 'Just now' }}</td>
                 </tr>
                 {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="3" style="padding: 3rem; text-align: center; color: var(--gray);">No users found yet.
+                    </td>
+                </tr>
+                {% endif %}
             </tbody>
         </table>
     </div>
