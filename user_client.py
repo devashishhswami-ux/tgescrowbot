@@ -13,9 +13,12 @@ from config import API_ID, API_HASH, PHONE_NUMBER
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from bot_error_wrapper import handle_errors, safe_call
+
 # Initialize Telethon client
 client = None
 
+@handle_errors
 async def init_user_client():
     """Initialize the Telethon user client"""
     global client
@@ -25,6 +28,7 @@ async def init_user_client():
         logger.info("Telethon user client initialized")
     return client
 
+@handle_errors
 async def create_escrow_group(buyer_id, seller_id, bot_username, deal_id):
     """
     Create a private supergroup for escrow
@@ -77,6 +81,7 @@ async def create_escrow_group(buyer_id, seller_id, bot_username, deal_id):
         raise
 
 
+@handle_errors
 async def add_user_to_group(group_id, user_id):
     """
     Add a user (e.g., admin) to an existing group
@@ -104,6 +109,7 @@ async def add_user_to_group(group_id, user_id):
         logger.error(f"Error adding user to group: {e}")
         return False
 
+@handle_errors
 async def close_user_client():
     """Close the Telethon client"""
     global client

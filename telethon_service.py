@@ -23,6 +23,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+from bot_error_wrapper import handle_errors, safe_call
+
 # Flask app
 app = Flask(__name__)
 
@@ -47,6 +49,7 @@ def run_coroutine_threadsafe(coro):
     future = asyncio.run_coroutine_threadsafe(coro, loop)
     return future.result()
 
+@safe_call
 async def init_client():
     """Initialize Telethon client"""
     global client
@@ -59,6 +62,7 @@ async def init_client():
         logger.info("Telethon client initialized and authorized")
     return client
 
+@safe_call
 async def create_telegram_group_async(buyer_id, seller_id, bot_username, deal_id):
     """
     Create a Telegram group for escrow with anonymous creator and bot as admin
@@ -202,6 +206,8 @@ def create_group():
     """Create a Telegram group with anonymous creator and bot as admin"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
         
         # Validate request
         required_fields = ['buyer_id', 'seller_id', 'bot_username', 'deal_id']
