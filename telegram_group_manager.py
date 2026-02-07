@@ -12,9 +12,26 @@ import database
 
 logger = logging.getLogger(__name__)
 
-# Get Telethon credentials from environment
-API_ID = int(os.getenv('API_ID', '0'))
-API_HASH = os.getenv('API_HASH', '')
+# Get Telethon credentials from environment or database
+API_ID = os.getenv('API_ID')
+API_HASH = os.getenv('API_HASH')
+
+if not API_ID or not API_HASH:
+    try:
+        API_ID = database.get_config('telegram_api_id')
+        API_HASH = database.get_config('telegram_api_hash')
+        if API_ID:
+            API_ID = int(API_ID)
+    except Exception as e:
+        logger.error(f"Error fetching API credentials from DB: {e}")
+
+if not API_ID or not API_HASH:
+    # Default placeholder or error
+    API_ID = 0
+    API_HASH = ''
+    logger.warning("API_ID or API_HASH not found in env or DB")
+else:
+    API_ID = int(API_ID)
 
 def get_admin_session():
     """
