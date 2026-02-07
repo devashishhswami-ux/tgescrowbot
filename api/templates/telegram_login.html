@@ -1,0 +1,166 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Telegram Login{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📱 Telegram Account Login</h2>
+
+    {% if logged_in_account %}
+    <!-- Already Logged In -->
+    <div class="alert alert-success">
+        <h4>✅ Logged In Successfully!</h4>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5>Current Account</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <tr>
+                    <th>Phone:</th>
+                    <td><code>{{ logged_in_account.phone }}</code></td>
+                </tr>
+                <tr>
+                    <th>User ID:</th>
+                    <td><code>{{ logged_in_account.user_id }}</code></td>
+                </tr>
+                <tr>
+                    <th>Name:</th>
+                    <td><code>{{ logged_in_account.name }}</code></td>
+                </tr>
+                <tr>
+                    <th>Username:</th>
+                    <td><code>@{{ logged_in_account.username }}</code></td>
+                </tr>
+            </table>
+
+            <form method="POST" onsubmit="return confirm('Are you sure you want to logout?');">
+                <input type="hidden" name="action" value="logout">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+        <strong>🎯 What's Next:</strong>
+        <p>Now you can create Telegram groups! Go to your bot and click "Create Escrow Group" button.</p>
+    </div>
+
+    {% else %}
+    <!-- Not Logged In -->
+
+    {% if not api_configured %}
+    <div class="alert alert-warning">
+        <strong>⚠️ API Not Configured</strong>
+        <p>Please configure your Telegram API credentials first.</p>
+        <a href="{{ url_for('telegram_config') }}" class="btn btn-primary">Configure API</a>
+    </div>
+    {% else %}
+
+    {% if login_step == 'phone' %}
+    <!-- Step 1: Enter Phone Number -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5>Step 1: Enter Phone Number</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="action" value="send_code">
+                <div class="form-group mb-3">
+                    <label for="phone">Phone Number (with country code)</label>
+                    <input type="text" class="form-control" id="phone" name="phone" placeholder="+1234567890" required>
+                    <small class="form-text text-muted">Enter your phone number with country code (e.g., +91 for
+                        India)</small>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Send Code
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% elif login_step == 'verify_code' %}
+    <!-- Step 2: Enter Verification Code -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5>Step 2: Enter Verification Code</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>📩 Code Sent!</strong>
+                <p>Check your Telegram app for the verification code.</p>
+            </div>
+
+            <form method="POST">
+                <input type="hidden" name="action" value="verify_code">
+                <div class="form-group mb-3">
+                    <label for="code">Verification Code</label>
+                    <input type="text" class="form-control" id="code" name="code" placeholder="12345" required>
+                    <small class="form-text text-muted">Enter the code sent to your Telegram</small>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Verify
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% elif login_step == 'verify_2fa' %}
+    <!-- Step 3: Enter 2FA Password -->
+    <div class="card">
+        <div class="card-header bg-warning text-white">
+            <h5>Step 3: Enter 2FA Password</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>🔐 2FA Enabled</strong>
+                <p>Your account has 2-Factor Authentication enabled. Please enter your password.</p>
+            </div>
+
+            <form method="POST">
+                <input type="hidden" name="action" value="verify_2fa">
+                <div class="form-group mb-3">
+                    <label for="password">2FA Password</label>
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Your 2FA password" required>
+                    <small class="form-text text-muted">Enter your Telegram 2FA password</small>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-lock"></i> Login with 2FA
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5>ℹ️ How It Works</h5>
+        </div>
+        <div class="card-body">
+            <ol>
+                <li><strong>Configure API:</strong> First set up your API credentials (one-time)</li>
+                <li><strong>Login:</strong> Enter phone → Get code → Enter code → (2FA if enabled)</li>
+                <li><strong>Create Groups:</strong> Once logged in, bot can create Telegram groups</li>
+                <li><strong>Logout:</strong> Click logout button when done</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('telegram_config') }}" class="btn btn-secondary">
+            <i class="fas fa-cog"></i> API Settings
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{
+    "version": 2,
+    "name": "escrow-admin-panel",
+    "builds": [
+        {
+            "src": "admin-panel/app.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "50mb"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "admin-panel/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "admin-panel/app.py"
+        }
+    ],
+    "env": {
+        "SUPABASE_URL": "@supabase_url",
+        "SUPABASE_KEY": "@supabase_key",
+        "SECRET_KEY": "@secret_key",
+        "API_ID": "@api_id",
+        "API_HASH": "@api_hash"
+    }
+}

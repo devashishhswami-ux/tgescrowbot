@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Editor - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    {% include 'nav.html' %}
+
+    <div class="container">
+        <h1>📝 Content Editor</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <h2>Instructions</h2>
+            <form method="POST">
+                <input type="hidden" name="content_key" value="instructions">
+                <div class="form-group">
+                    <textarea name="content_value"
+                        placeholder="Enter instructions content...">{{ instructions }}</textarea>
+                </div>
+                <button type="submit">💾 Save Instructions</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Terms of Service</h2>
+            <form method="POST">
+                <input type="hidden" name="content_key" value="terms">
+                <div class="form-group">
+                    <textarea name="content_value" placeholder="Enter terms of service...">{{ terms }}</textarea>
+                </div>
+                <button type="submit">💾 Save Terms</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Welcome Message</h2>
+            <form method="POST">
+                <input type="hidden" name="content_key" value="welcome">
+                <div class="form-group">
+                    <textarea name="content_value" placeholder="Enter welcome message...">{{ welcome }}</textarea>
+                </div>
+                <button type="submit">💾 Save Welcome Message</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

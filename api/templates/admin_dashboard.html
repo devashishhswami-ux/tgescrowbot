@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    {% include 'nav.html' %}
+
+    <div class="container">
+        <h1>📊 Dashboard</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3>{{ users_count }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">💼</div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('total_deals', 0) }}</h3>
+                    <p>Total Deals</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">⚖️</div>
+                <div class="stat-info">
+                    <h3>{{ stats.get('disputes_resolved', 0) }}</h3>
+                    <p>Disputes Resolved</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Recent Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Started At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>{{ user[0] }}</td>
+                        <td>@{{ user[1] or 'N/A' }}</td>
+                        <td>{{ user[2] }}</td>
+                        <td>{{ user[4] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
