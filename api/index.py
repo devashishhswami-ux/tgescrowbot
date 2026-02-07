@@ -116,7 +116,11 @@ def dashboard():
     try:
         stats = database.get_statistics() or {'total_deals': 0, 'disputes_resolved': 0}
         users = database.get_all_bot_users() or []
-        return render_template('admin_dashboard.html', stats=stats, users=users)
+        return render_template('admin_dashboard.html', 
+                             stats=stats, 
+                             users=users,
+                             users_count=len(users),
+                             recent_users=users[:10])  # Show last 10 users
     except Exception as e:
         print(f"Dashboard error: {e}")
         import traceback
