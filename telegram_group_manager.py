@@ -81,8 +81,8 @@ async def create_escrow_group(deal_id, bot_username=None):
         # Create Telethon client from session
         client = TelegramClient(
             StringSession(session_string),
-            API_ID,
-            API_HASH
+            api_id,
+            api_hash
         )
         
         await client.connect()
