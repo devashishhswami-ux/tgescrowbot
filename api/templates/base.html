@@ -261,6 +261,15 @@
             .table-responsive td:last-child {
                 border-bottom: none;
             }
+
+            .table-responsive td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                color: var(--gray);
+                margin-bottom: 0.25rem;
+            }
         }
 
         /* Forms */
