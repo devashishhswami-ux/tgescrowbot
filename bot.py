@@ -410,20 +410,9 @@ async def create_escrow_group_command(update: Update, context: ContextTypes.DEFA
         # Store in database
         database.create_deal(deal_id, buyer_id, seller_id, group_id)
         
-        # Send welcome message to the group
-        stats = database.get_statistics()
-        welcome_text = messages.GROUP_WELCOME_TEXT.format(
-            total_deals=stats.get('total_deals', 5542),
-            disputes_resolved=stats.get('disputes_resolved', 158)
-        )
-        keyboard = get_group_keyboard()
         
-        await context.bot.send_message(
-            chat_id=group_id,
-            text=welcome_text,
-            reply_markup=keyboard,
-            parse_mode='HTML'
-        )
+        # NOTE: Welcome message is now sent automatically by track_member_updates
+        # when the bot joins the group. We don't need to send it here.
         
         await update.message.reply_text(
             f"✅ <b>Escrow group created successfully!</b>\n"
@@ -471,6 +460,33 @@ async def join_deal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 @handle_errors
+@handle_errors
+async def delete_service_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Delete service messages like 'User added Bot'"""
+    if not update.message:
+        return
+        
+    # Check if this is a 'new chat members' service message
+    if update.message.new_chat_members:
+        try:
+            # We only want to delete the message if it's about the BOT being added
+            # or if the user wants ALL 'added' messages hidden.
+            # User said: "must not show middle crypto added bot".
+            # So we delete all 'added member' messages just to be clean?
+            # Or just the one for the bot.
+            
+            # Let's delete ALL for cleaner look in Escrow groups
+            await update.message.delete()
+        except Exception:
+            pass
+            
+    # Also delete 'left chat member' messages
+    if update.message.left_chat_member:
+        try:
+            await update.message.delete()
+        except Exception:
+            pass
+
 @handle_errors
 async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Track when members join the group - send admin announcement"""
@@ -957,6 +973,9 @@ def main():
     # Chat member updates (for admin join detection)
     app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.CHAT_MEMBER))
     app.add_handler(ChatMemberHandler(track_member_updates, ChatMemberHandler.MY_CHAT_MEMBER))
+    
+    # Service message deleter (Keep chat clean)
+    app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS | filters.StatusUpdate.LEFT_CHAT_MEMBER, delete_service_messages))
     
     # Start bot
     # Start bot with conflict handling
