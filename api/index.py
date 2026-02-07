@@ -259,6 +259,20 @@ def telegram_logout():
     flash('Session management is not available in serverless deployment', 'info')
     return redirect(url_for('session_info'))
 
+@app.route('/telegram-login', methods=['GET', 'POST'])
+@login_required
+def telegram_login():
+    """Telegram login page - not functional in serverless"""
+    try:
+        flash('Telegram login is not available in serverless deployment', 'info')
+        return render_template('telegram_login.html', 
+                             logged_in_account=None,
+                             api_configured=False,
+                             login_step='phone')
+    except Exception as e:
+        print(f"Telegram login error: {e}")
+        return redirect(url_for('dashboard'))
+
 @app.route('/crypto-addresses', methods=['GET', 'POST'])
 @login_required
 def crypto_addresses():
