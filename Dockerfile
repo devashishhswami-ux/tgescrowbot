@@ -15,6 +15,7 @@ COPY messages.py .
 COPY validators.py .
 COPY user_client.py .
 COPY telethon_service.py .
+COPY bot_error_wrapper.py .
 
 # Create sessions directory
 RUN mkdir -p /app/sessions

@@ -17,6 +17,7 @@ import database
 import validators
 import user_client
 import asyncio
+from bot_error_wrapper import handle_errors, safe_call
 
 # Logging setup
 logging.basicConfig(
@@ -43,6 +44,7 @@ def get_group_keyboard():
 # COMMAND HANDLERS
 # ====================
 
+@handle_errors
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
     try:
@@ -120,6 +122,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             pass
 
+@handle_errors
 async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /menu command - show keyboard in groups"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -158,6 +161,7 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ADDRESS COMMANDS
 # ====================
 
+@handle_errors
 async def seller_address_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /seller ADDRESS command"""
     if not context.args:
@@ -204,6 +208,7 @@ async def seller_address_command(update: Update, context: ContextTypes.DEFAULT_T
             parse_mode='HTML'
         )
 
+@handle_errors
 async def buyer_address_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /buyer ADDRESS command"""
     if not context.args:
@@ -250,6 +255,7 @@ async def buyer_address_command(update: Update, context: ContextTypes.DEFAULT_TY
             parse_mode='HTML'
         )
 
+@handle_errors
 async def show_addresses_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show all addresses in the escrow group"""
     if update.effective_chat.type not in ['group', 'supergroup']:
@@ -278,6 +284,7 @@ async def show_addresses_command(update: Update, context: ContextTypes.DEFAULT_T
     
     await update.message.reply_text(text, parse_mode='HTML')
 
+@handle_errors
 async def set_crypto_address_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin only - Set bot's crypto address"""
     user_id = update.effective_user.id
@@ -318,6 +325,7 @@ async def set_crypto_address_command(update: Update, context: ContextTypes.DEFAU
 # GROUP CREATION
 # ====================
 
+@handle_errors
 async def create_escrow_group_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Create an escrow group (example trigger - adjust to your flow)"""
     # This is a simplified example. You'd trigger this from inline buttons or another flow
@@ -399,6 +407,7 @@ async def create_escrow_group_command(update: Update, context: ContextTypes.DEFA
 # ADMIN FEATURES
 # ====================
 
+@handle_errors
 async def join_deal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin command to join an active deal"""
     user_id = update.effective_user.id
@@ -426,6 +435,7 @@ async def join_deal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='HTML'
     )
 
+@handle_errors
 async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Track when members join the group - send admin announcement"""
     new_members = update.chat_member.new_chat_member
@@ -446,6 +456,7 @@ async def track_member_updates(update: Update, context: ContextTypes.DEFAULT_TYP
 # OTHER COMMANDS
 # ====================
 
+@handle_errors
 async def contact_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /contact command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -453,6 +464,7 @@ async def contact_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(messages.GROUP_ONLY_COMMAND, parse_mode='HTML')
 
+@handle_errors
 async def blockchain_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /blockchain command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -465,6 +477,7 @@ async def blockchain_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         await update.message.reply_text(messages.GROUP_ONLY_COMMAND, parse_mode='HTML')
 
+@handle_errors
 async def balance_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /balance command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -477,6 +490,7 @@ async def balance_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("<b>This command is for use in escrow groups only.</b>", parse_mode='HTML')
 
+@handle_errors
 async def pay_seller_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /pay_seller command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -488,6 +502,7 @@ async def pay_seller_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
         await update.message.reply_text("<b>This command is for use in escrow groups only.</b>", parse_mode='HTML')
 
+@handle_errors
 async def refund_buyer_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /refund_buyer command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -499,6 +514,7 @@ async def refund_buyer_command(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         await update.message.reply_text("<b>This command is for use in escrow groups only.</b>", parse_mode='HTML')
 
+@handle_errors
 async def qr_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /qr command - group only"""
     if update.effective_chat.type in ['group', 'supergroup']:
@@ -510,6 +526,7 @@ async def qr_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("<b>This command is for use in escrow groups only.</b>", parse_mode='HTML')
 
+@handle_errors
 async def leaderboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /leaderboard command - works everywhere"""
     try:
@@ -520,9 +537,11 @@ async def leaderboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 
+@handle_errors
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("<b>Type /start to see the main menu.</b>", parse_mode='HTML')
 
+@handle_errors
 async def userinfo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /userinfo - show user information"""
     # Check if reply to message
@@ -552,6 +571,7 @@ async def userinfo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='HTML'
         )
 
+@handle_errors
 async def real_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /real - verify if user is real admin"""
     if not update.message.reply_to_message:
@@ -586,9 +606,11 @@ async def real_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
+@handle_errors
 async def whatisescrow_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"<b>{messages.TEXT_WHAT_IS_ESCROW}</b>", parse_mode='HTML')
 
+@handle_errors
 async def video_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     import os
     if os.path.exists("video.mp4"):
@@ -600,12 +622,15 @@ async def video_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("<b>Video not found on server.</b>", parse_mode='HTML')
 
+@handle_errors
 async def terms_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"<b>{messages.TEXT_TERMS}</b>", parse_mode='HTML')
 
+@handle_errors
 async def instructions_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"<b>{messages.TEXT_INSTRUCTIONS}</b>", parse_mode='HTML')
 
+@handle_errors
 async def setpin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /setpin command - set user PIN for security"""
     user_id = update.effective_user.id
@@ -642,6 +667,7 @@ async def setpin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # CALLBACK HANDLERS
 # ====================
 
+@handle_errors
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle inline button clicks"""
     query = update.callback_query

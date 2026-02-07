@@ -13,6 +13,9 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "YOUR_SUPABASE_KEY_HERE")
 # Initialize Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+from bot_error_wrapper import safe_call
+
+@safe_call
 def init_db():
     """Initialize database tables in Supabase"""
     # Tables are created via Supabase dashboard or SQL editor
@@ -38,6 +41,7 @@ def init_db():
     except Exception as e:
         print(f"❌ Database init error: {e}")
 
+@safe_call
 def set_user_role(user_id, role, address):
     """Set user role and wallet address"""
     try:
@@ -49,6 +53,7 @@ def set_user_role(user_id, role, address):
     except Exception as e:
         print(f"Error setting user role: {e}")
 
+@safe_call
 def get_user_role(user_id):
     """Get user role and wallet address"""
     try:
@@ -60,6 +65,7 @@ def get_user_role(user_id):
         print(f"Error getting user role: {e}")
         return None
 
+@safe_call
 def set_config(key, value):
     """Set configuration value"""
     try:
@@ -67,6 +73,7 @@ def set_config(key, value):
     except Exception as e:
         print(f"Error setting config: {e}")
 
+@safe_call
 def get_config(key):
     """Get configuration value"""
     try:
@@ -76,6 +83,7 @@ def get_config(key):
         print(f"Error getting config: {e}")
         return None
 
+@safe_call
 def create_deal(deal_id, buyer_id, seller_id, group_id):
     """Create a new escrow deal"""
     try:
@@ -89,6 +97,7 @@ def create_deal(deal_id, buyer_id, seller_id, group_id):
     except Exception as e:
         print(f"Error creating deal: {e}")
 
+@safe_call
 def update_deal_address(deal_id, role, address):
     """Update buyer or seller address for a deal"""
     try:
@@ -99,6 +108,7 @@ def update_deal_address(deal_id, role, address):
     except Exception as e:
         print(f"Error updating deal address: {e}")
 
+@safe_call
 def get_deal_by_group(group_id):
     """Get deal information by group ID"""
     try:
@@ -112,6 +122,7 @@ def get_deal_by_group(group_id):
         print(f"Error getting deal: {e}")
         return None
 
+@safe_call
 def get_statistics():
     """Get current bot statistics"""
     try:
@@ -121,6 +132,7 @@ def get_statistics():
         print(f"Error getting statistics: {e}")
         return {}
 
+@safe_call
 def track_user(user_id, username, first_name, last_name=None):
     """Track user who started the bot"""
     try:
@@ -133,6 +145,7 @@ def track_user(user_id, username, first_name, last_name=None):
     except Exception as e:
         print(f"Error tracking user: {e}")
 
+@safe_call
 def get_all_users():
     """Get all users who started the bot"""
     try:
@@ -143,6 +156,7 @@ def get_all_users():
         print(f"Error getting users: {e}")
         return []
 
+@safe_call
 def save_media_file(file_type, file_path, description=""):
     """Save media file info"""
     try:
@@ -157,6 +171,7 @@ def save_media_file(file_type, file_path, description=""):
     except Exception as e:
         print(f"Error saving media file: {e}")
 
+@safe_call
 def get_media_file(file_type):
     """Get media file path by type"""
     try:
@@ -166,6 +181,7 @@ def get_media_file(file_type):
         print(f"Error getting media file: {e}")
         return None
 
+@safe_call
 def update_content(key, content):
     """Update editable content"""
     try:
@@ -177,6 +193,7 @@ def update_content(key, content):
     except Exception as e:
         print(f"Error updating content: {e}")
 
+@safe_call
 def get_content(key, default=""):
     """Get editable content"""
     try:
@@ -186,6 +203,7 @@ def get_content(key, default=""):
         print(f"Error getting content: {e}")
         return default
 
+@safe_call
 def get_all_media():
     """Get all media files"""
     try:
@@ -196,6 +214,7 @@ def get_all_media():
         print(f"Error getting all media: {e}")
         return []
 
+@safe_call
 def increment_stat(key):
     """Increment a statistic"""
     try:
