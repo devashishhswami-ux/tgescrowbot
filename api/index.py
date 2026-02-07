@@ -1,8 +1,4 @@
-import sys
 import os
-
-# Add parent directory to path to import database
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
