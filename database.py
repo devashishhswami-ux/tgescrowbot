@@ -113,9 +113,17 @@ def update_deal_address(deal_id, role, address):
 
 @safe_call
 def get_deal_by_group(group_id):
-    """Get deal information by group ID"""
+    """Get deal information by group ID (Flexible check)"""
     try:
+        # Try finding by exact group_id
         result = supabase.table('deals').select('*').eq('group_id', group_id).execute()
+        
+        # If not found, try alternative format (e.g. without -100 prefix)
+        if not result.data:
+            alt_id = int(str(group_id).replace('-100', ''))  # e.g. -100123 -> 123
+            if alt_id != group_id:
+                result = supabase.table('deals').select('*').eq('group_id', alt_id).execute()
+                
         if result.data:
             d = result.data[0]
             return (d['deal_id'], d['buyer_id'], d['seller_id'], d['buyer_address'], 
