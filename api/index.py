@@ -59,9 +59,14 @@ def logout():
 @app.route('/')
 @login_required
 def dashboard():
-    stats = database.get_statistics()
-    users = database.get_all_bot_users()
-    return render_template('admin_dashboard.html', stats=stats, users=users)
+    try:
+        stats = database.get_statistics()
+        users = database.get_all_bot_users()
+        return render_template('admin_dashboard.html', stats=stats, users=users)
+    except Exception as e:
+        print(f"Dashboard error: {e}")
+        # Return dashboard with empty data on error
+        return render_template('admin_dashboard.html', stats={'total_deals': 0, 'disputes_resolved': 0}, users=[])
 
 @app.route('/users')
 @login_required
