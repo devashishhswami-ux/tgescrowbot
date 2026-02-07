@@ -1135,9 +1135,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             import uuid
             import requests
+            import string
+            import random
             
-            # Generate a unique deal ID
-            deal_id = str(uuid.uuid4())[:5].upper()
+            # Generate a unique deal ID (Format: ABCDE-12345-FGHIJ)
+            def generate_segment(length=5, chars=string.ascii_uppercase + string.digits):
+                return ''.join(random.choices(chars, k=length))
+            
+            deal_id = f"{generate_segment()}-{generate_segment()}-{generate_segment()}"
             
             # For demo/testing, we'll create a group with the user as both buyer and seller
             buyer_id = user_id
