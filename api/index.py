@@ -185,17 +185,35 @@ def content():
 def settings():
     try:
         if request.method == 'POST':
+            # Password Update
             new_password = request.form.get('new_password')
-            
             if new_password:
                 if database.update_config('admin_password', new_password):
                     flash('Password updated successfully!', 'success')
                 else:
                     flash('Error updating password!', 'danger')
+            
+            # Telegram Config Update
+            api_id = request.form.get('api_id')
+            api_hash = request.form.get('api_hash')
+            phone = request.form.get('phone')
+            
+            if api_id:
+                database.update_config('telegram_api_id', api_id)
+            if api_hash:
+                database.update_config('telegram_api_hash', api_hash)
+            if phone:
+                database.update_config('telegram_phone', phone)
+            
+            if api_id or api_hash or phone:
+                flash('Telegram settings updated!', 'success')
                     
         config = {
             'admin_username': database.get_config('admin_username') or 'admin',
-            'admin_password': database.get_config('admin_password') or 'Not set'
+            'admin_password': database.get_config('admin_password') or 'Not set',
+            'api_id': database.get_config('telegram_api_id') or '',
+            'api_hash': database.get_config('telegram_api_hash') or '',
+            'phone': database.get_config('telegram_phone') or ''
         }
         return render_template('admin_settings.html', config=config)
     except Exception as e:
