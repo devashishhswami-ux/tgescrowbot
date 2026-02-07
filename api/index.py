@@ -268,14 +268,14 @@ def telegram_logout():
 def telegram_login():
     """Telegram login page - not functional in serverless"""
     try:
-        flash('Telegram login is not available in serverless deployment', 'info')
         return render_template('telegram_login.html', 
                              logged_in_account=None,
                              api_configured=False,
                              login_step='phone')
     except Exception as e:
         print(f"Telegram login error: {e}")
-        return redirect(url_for('dashboard'))
+        flash(f"Error loading Telegram login page: {str(e)}", 'danger')
+        return redirect(url_for('telegram_config'))
 
 @app.route('/crypto-addresses', methods=['GET', 'POST'])
 @login_required
