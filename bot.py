@@ -60,10 +60,29 @@ async def health_check_server():
     except Exception as e:
         logger.error(f"❌ Could not start health check server: {e}")
 
+from telegram import BotCommand
+
 async def post_init(application):
     """Start tasks after bot initialization"""
     asyncio.create_task(health_check_server())
     logger.info("✅ Health check task scheduled")
+    
+    # Set Bot Commands (Activates the Menu Button)
+    commands = [
+        BotCommand("start", "Start the bot & get help"),
+        BotCommand("menu", "Show main menu"),
+        BotCommand("create", "Create a new escrow group"),
+        BotCommand("balance", "Check escrow wallet balance"),
+        BotCommand("blockchain", "View official escrow addresses"),
+        BotCommand("pay_seller", "Release funds to seller"),
+        BotCommand("refund_buyer", "Refund funds to buyer"),
+        BotCommand("seller", "Set your wallet as Seller"),
+        BotCommand("buyer", "Set your wallet as Buyer"),
+        BotCommand("instructions", "How to use the bot"),
+        BotCommand("help", "List all commands"),
+    ]
+    await application.bot.set_my_commands(commands)
+    logger.info(f"✅ Set {len(commands)} bot commands")
 
 def get_group_keyboard():
     """Get inline keyboard for group messages"""
