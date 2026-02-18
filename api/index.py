@@ -24,16 +24,16 @@ try:
             sys.modules["database"] = database
             spec.loader.exec_module(database)
             DB_AVAILABLE = True
-            print(f"✅ Loaded database explicitly from {db_path}")
+            print(f"âœ… Loaded database explicitly from {db_path}")
     
     # 2. Fallback to standard import if explicit load skipped/failed but no exception
     if not DB_AVAILABLE:
         import database
         DB_AVAILABLE = True
-        print("✅ Loaded database via standard import")
+        print("âœ… Loaded database via standard import")
 
 except Exception as e:
-    print(f"❌ Database import error: {e}")
+    print(f"âŒ Database import error: {e}")
     DB_AVAILABLE = False
     
     # Mock Database Class for fallback
@@ -60,6 +60,12 @@ except Exception as e:
         def update_crypto_address(address_id, currency, address, network='', label=''): return False
         @staticmethod
         def get_telegram_admin_session(): return None
+        @staticmethod
+        def save_telegram_session(session_string, phone, user_data=None): return False
+        @staticmethod
+        def get_telegram_session(phone=None): return None
+        @staticmethod
+        def delete_telegram_session(phone): return False
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "escrow_bot_secret_key_change_this_in_production")
@@ -336,7 +342,7 @@ def telegram_login():
                     session['tg_temp_session'] = result['temp_session']
                     session['tg_phone_code_hash'] = result['phone_code_hash']
                     session['tg_step'] = 'code'
-                    flash(f"✅ Code sent to {phone}! Enter it below.", 'success')
+                    flash(f"âœ… Code sent to {phone}! Enter it below.", 'success')
                 else:
                     flash(f"Error: {result.get('error', 'Unknown error')}", 'danger')
             except Exception as e:
@@ -369,9 +375,9 @@ def telegram_login():
                     )
                     
                     if save_result:
-                        flash(f'🎉 SUCCESS! Logged in as User ID: {result["user_data"]["id"]}', 'success')
+                        flash(f'ðŸŽ‰ SUCCESS! Logged in as User ID: {result["user_data"]["id"]}', 'success')
                     else:
-                        flash('⚠️ Login successful but failed to save session.', 'warning')
+                        flash('âš ï¸ Login successful but failed to save session.', 'warning')
                     
                     # Clear session data
                     session.pop('tg_step', None)
@@ -548,8 +554,8 @@ def webhook_manager():
 # For local testing
 if __name__ == '__main__':
     print("=" * 50)
-    print("🚀 Admin Panel Starting...")
-    print("📍 URL: http://localhost:5000")
-    print("🔐 Default Password: admin123")
+    print("ðŸš€ Admin Panel Starting...")
+    print("ðŸ“ URL: http://localhost:5000")
+    print("ðŸ” Default Password: admin123")
     print("=" * 50)
     app.run(host='0.0.0.0', port=5000, debug=True)
