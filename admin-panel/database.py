@@ -201,3 +201,79 @@ def increment_stat(key):
             supabase.table('statistics').update({'value': new_value}).eq('key', key).execute()
     except Exception as e:
         print(f"Error incrementing stat: {e}")
+# Aliases
+get_all_bot_users = get_all_users
+update_config = set_config
+
+def update_editable_content(key, content):
+    try:
+        supabase.table('editable_content').upsert({'key': key, 'content': content, 'updated_at': datetime.now().isoformat()}).execute()
+        return True
+    except Exception as e:
+        return False
+
+def get_all_editable_content():
+    try:
+        result = supabase.table('editable_content').select('*').order('updated_at', desc=True).execute()
+        return [(c['key'], c['content'], c['updated_at']) for c in result.data]
+    except Exception as e:
+        return []
+
+def get_crypto_addresses():
+    try:
+        result = supabase.table('crypto_addresses').select('*').order('created_at', desc=True).execute()
+        return [(a['id'], a['currency'], a['address'], a['network'], a['label'], a['created_at']) for a in result.data]
+    except Exception as e:
+        return []
+
+def add_crypto_address(currency, address, network='', label=''):
+    try:
+        supabase.table('crypto_addresses').insert({'currency': currency, 'address': address, 'network': network, 'label': label}).execute()
+        return True
+    except Exception as e:
+        return False
+
+def delete_crypto_address(address_id):
+    try:
+        supabase.table('crypto_addresses').delete().eq('id', address_id).execute()
+        return True
+    except Exception as e:
+        return False
+
+def update_crypto_address(address_id, currency, address, network='', label=''):
+    try:
+        supabase.table('crypto_addresses').update({'currency': currency, 'address': address, 'network': network, 'label': label}).eq('id', address_id).execute()
+        return True
+    except Exception as e:
+        return False
+
+def save_telegram_session(session_string, phone, user_data=None):
+    try:
+        data = {'session_string': session_string, 'phone': phone, 'user_id': user_data.get('id') if user_data else None, 'username': user_data.get('username') if user_data else None, 'first_name': user_data.get('first_name') if user_data else None, 'last_name': user_data.get('last_name') if user_data else None, 'updated_at': datetime.now().isoformat()}
+        result = supabase.table('telegram_sessions').select('*').eq('phone', phone).execute()
+        if result.data:
+            supabase.table('telegram_sessions').update(data).eq('phone', phone).execute()
+        else:
+            data['created_at'] = datetime.now().isoformat()
+            supabase.table('telegram_sessions').insert(data).execute()
+        return True
+    except Exception as e:
+        print(f"Error saving session: {e}")
+        return False
+
+def get_telegram_session(phone=None):
+    try:
+        if phone:
+            result = supabase.table('telegram_sessions').select('*').eq('phone', phone).execute()
+        else:
+            result = supabase.table('telegram_sessions').select('*').order('updated_at', desc=True).limit(1).execute()
+        return result.data[0] if result.data else None
+    except Exception as e:
+        return None
+
+def delete_telegram_session(phone):
+    try:
+        supabase.table('telegram_sessions').delete().eq('phone', phone).execute()
+        return True
+    except Exception as e:
+        return False
